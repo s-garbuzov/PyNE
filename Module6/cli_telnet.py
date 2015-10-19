@@ -6,6 +6,7 @@
 # built-in modules
 import telnetlib
 
+
 # TELNET session specific data
 IP_ADDR = '172.22.17.110'
 PORT_NUM = 23
@@ -30,7 +31,7 @@ def cli_disable_paging(rsh):
     r = rsh.expect(['Invalid command', '\%s' % OPER_PROMPT], timeout=TIMEOUT)
     if r[0] != 1:
         print "!!!Failed to execute CLI command: %s" % cmd
-        # Flash out the read buffer
+        # Flush out the read buffer
         rsh.read_until(match=OPER_PROMPT, timeout=TIMEOUT)
         return False
     else:
@@ -51,7 +52,7 @@ def cli_enter_cfg_mode(rsh):
     r = rsh.expect(['Invalid command', ADMIN_PROMPT], timeout=TIMEOUT)
     if r[0] != 1:
         print "!!!Failed to execute CLI command: %s" % cmd
-        # Flash out the read buffer
+        # Flush out the read buffer
         rsh.read_until(OPER_PROMPT, TIMEOUT)
         return False
     else:
@@ -73,7 +74,7 @@ def cli_get_interfaces(rsh):
     r = rsh.expect([r'Invalid command', r'#'], timeout=TIMEOUT)
     if r[0] != 1:
         print "!!!Failed to execute CLI command: %s" % cmd
-        # Flash out the read buffer
+        # Flush out the read buffer
         rsh.read_until(ADMIN_PROMPT, timeout=TIMEOUT)
     else:
         output = r[2]
@@ -128,24 +129,24 @@ def disconnect_telnet(rconn):
         print "!!!Error, %s " % e
 
 
-# Connect to a remote TELNET server
-rsh = connect_telnet(ip=IP_ADDR, port=PORT_NUM,
-                     uname=USERNAME, pswd=PASSWORD, timeout=TIMEOUT)
-if rsh:
+# Connect to a remote TELNET server and execute few CLI commands
+telnet_conn = connect_telnet(ip=IP_ADDR, port=PORT_NUM,
+                             uname=USERNAME, pswd=PASSWORD, timeout=TIMEOUT)
+if telnet_conn:
     print "Established TELNET connection to %s\n" % IP_ADDR
 
     # Turn off CLI paging
-    cli_disable_paging(rsh)
+    cli_disable_paging(telnet_conn)
 
     # Enter configuration mode
-    cli_enter_cfg_mode(rsh)
+    cli_enter_cfg_mode(telnet_conn)
 
     # Read and show list of interfaces
-    output = cli_get_interfaces(rsh)
+    output = cli_get_interfaces(telnet_conn)
     print "%s\n" % output
 
     # Terminate TELNET session
-    disconnect_telnet(rsh)
+    disconnect_telnet(telnet_conn)
     print "Closed TELNET connection to %s\n" % IP_ADDR
 else:
     print "TELNET connection to %s has failed\n" % IP_ADDR

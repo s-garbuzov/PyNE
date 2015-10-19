@@ -11,45 +11,61 @@ import socket
 import paramiko
 
 
-# SSH session specific data that need change
+# SSH session specific data
 IP_ADDR = '172.22.17.110'
 PORT_NUM = 830
 USERNAME = 'vyatta'
 PASSWORD = 'vyatta'
 
-# CLI session specific
+# CLI session specific data
 TIMEOUT = 5
 RCV_BUFF_SIZE = 1000
 
 
 def cli_disable_paging(rsh):
-    '''Disable CLI paging on a remote device'''
+    """Disable CLI paging on a remote device"""
 
-    # Execute CLI command that disables CLI paging
-    rsh.send("set terminal length 0\n")
+    # Execute the command
+    cmd = 'set terminal length 0\n'
+    rsh.send(cmd)
+    # wait for command to complete
     time.sleep(1)
 
-    # Read the channel buffer (clear output data that might
-    # left in the buffer in result of the command execution)
+    # Flush out the read buffer
+    rsh.recv(RCV_BUFF_SIZE)
+
+
+def cli_enter_cfg_mode(rsh):
+    """Execute CLI command for entering the configuration mode
+    on a remote device
+    """
+
+    # Execute the command
+    cmd = "configure\n"
+    rsh.send(cmd)
+    # wait for command to complete
+    time.sleep(1)
+
+    # Flush out the read buffer
     rsh.recv(RCV_BUFF_SIZE)
 
 
 def cli_get_interfaces(rsh):
-    '''Obtain interface information from a remote device'''
+    """Obtain interface information from a remote device"""
 
-    # Execute CLI command that shows list of network
-    # interfaces and wait for the command to complete
+    # Execute the command
     rsh.send('show interfaces\n')
+    # wait for command to complete
     time.sleep(1)
 
     # Read the result of executed CLI command from the
-    # channel buffer and return it
+    # channel buffer
     output = rsh.recv(RCV_BUFF_SIZE)
     return output
 
 
-def connect_ssh(ip, port=22, uname, pswd):
-    '''Establish SSH connection to a remote device'''
+def connect_ssh(ip, port, uname, pswd):
+    """Establish SSH connection to a remote device"""
 
     # Create an instance object of the 'SSHClient' class
     rconn = paramiko.SSHClient()
@@ -78,14 +94,14 @@ def connect_ssh(ip, port=22, uname, pswd):
 
 
 def disconnect_ssh(rconn):
-    '''Close SSH connection to a remote device'''
+    """Close SSH connection to a remote device"""
     try:
         rconn.close()
     except (Exception) as e:
         print "!!!Error, %s " % e
 
 
-# Connect to a remote SSH server
+# Connect to a remote SSH server and execute few CLI commands
 ssh_conn = connect_ssh(ip=IP_ADDR, port=PORT_NUM,
                        uname=USERNAME, pswd=PASSWORD)
 if ssh_conn:
@@ -93,16 +109,19 @@ if ssh_conn:
     try:
         # Start an interactive shell session on the remote SSH server
         rsh = ssh_conn.invoke_shell()
-        print "Initiated interactive shell session\n"
+#        print "Initiated interactive shell session\n"
 
-        # Read the initial prompt data from the channel and display it
+        # Read the initial prompt data from the channel
+        # (flush out the read buffer)
         output = rsh.recv(RCV_BUFF_SIZE)
-        print "%s\n" % output
 
         # Turn off CLI paging
         cli_disable_paging(rsh)
 
-        # Get list of interfaces available on the device and display it
+        # Enter configuration mode
+        cli_enter_cfg_mode(rsh)
+
+        # Read and show list of interfaces
         output = cli_get_interfaces(rsh)
         print "%s\n" % output
     except (paramiko.SSHException) as e:
