@@ -12,9 +12,9 @@ IP_ADDR = '172.22.17.110'
 PORT_NUM = 23
 USERNAME = 'vyatta'
 PASSWORD = 'vyatta'
+TIMEOUT = 5
 
 # CLI session specific data
-TIMEOUT = 5
 OPER_PROMPT = '$'
 ADMIN_PROMPT = '#'
 
@@ -71,7 +71,7 @@ def cli_get_interfaces(rsh):
     # Read device output until one from a list of regular expressions
     # matches or until timeout
     output = None
-    r = rsh.expect([r'Invalid command', r'#'], timeout=TIMEOUT)
+    r = rsh.expect(['Invalid command', ADMIN_PROMPT], timeout=TIMEOUT)
     if r[0] != 1:
         print "!!!Failed to execute CLI command: %s" % cmd
         # Flush out the read buffer

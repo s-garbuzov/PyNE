@@ -1,32 +1,70 @@
 Module 6. Collecting Device Operations into Functions
 
-   A function is a device that groups a set of statements
-   so they can be run more than once in a program. Functions
-   also can compute a result value and let us specify parameters
-   that serve as function inputs, which may differ each time the
-   code is run.
+    Functions are the most basic program structure that Python provides
+    for maximizing code reuse and minimizing code redundancy.
 
-   Functions are the most basic program structure Python provides
-   for maximizing code reuse and minimizing code redundancy.
+    A function is a block of organized, reusable code that is used
+    to perform a single, related action. Functions provide better
+    modularity for an application and a high degree of code reusing.
    
-   A function is a block of organized, reusable code that is used
-   to perform a single, related action. Functions provide better
-   modularity for your application and a high degree of code reusing.
-   
-   The function performs a specific task. The advantages of using functions are:
+    The function performs a specific task. The advantages of using
+    functions are:
 
-    Reducing duplication of code
-    Decomposing complex problems into simpler pieces
-    Improving clarity of the code
-    Reuse of code
-    Information hiding
-   
-   Functions can be assigned to variables, stored in collections or passed
-   as arguments. This brings additional flexibility to the language.
-   
-   There are two basic types of functions.
-   Built-in functions and user defined ones.
-   The built-in functions are part of the Python language.
-   The user defined functions are functions created with the def keyword.
-   
-   
+    - Reducing duplication of code
+    - Decomposing complex problems into simpler pieces
+    - Improving clarity of the code
+    - Reuse of code
+    - Information hiding
+
+    Functions can be assigned to variables, stored in collections or passed
+    as arguments. This brings additional flexibility to the language.
+
+    There are two basic types of functions: built-in functions and user
+    defined ones. The built-in functions are part of the Python language.
+    The user defined functions are functions created with the def keyword.
+
+    o def statement
+      Python functions are written with a def statement, function does not
+      exist until Python reaches and runs the def. When Python reaches and
+      runs a def statement, it generates a new function object and assigns
+      it to the function’s name. As with all assignments, the function name
+      becomes a reference to the function object.
+
+    o lambda expression
+      It is also possible to create anonymous functions (functions not
+      bound to a name), for immediate use in expressions. Such functions may
+      be created with the lambda expression, a feature that allows to in-line
+      function definitions in places where a def statement won’t work
+      syntactically.
+
+    o yield statement
+      Functions known as generators may also use the yield statement to
+      send back a value and suspend their state such that they may be
+      resumed later, to produce a series of results over time.
+      yield sends a result object back to the caller, but remembers
+      where it left off.
+     
+    In Python, arguments are passed to functions by assignment (object
+    reference). Changing an argument name within a function does not also
+    change the corresponding name in the caller, but changing passed-in
+    mutable objects can change objects shared by the caller.
+
+    The def header line specifies a function name that is assigned the
+    function object, along with a list of zero or more arguments (sometimes
+    called parameters) in parentheses. The argument names in the header are
+    assigned to the objects passed in parentheses at the point of call.
+
+    Function bodies often contain a return statement:
+    def <name>(arg1, arg2,... argN):
+        ...
+        return <value>
+
+    The return statement can show up anywhere in a function body; it ends the
+    function call and sends a result back to the caller. The return statement
+    consists of an object expression that gives the function’s result.
+    The return statement is optional; if it’s not present, the function exits
+    when the control flow falls off the end of the function. Technically,
+    a function without a return statement returns the None object.
+
+    
+

@@ -16,20 +16,21 @@ IP_ADDR = '172.22.17.110'
 PORT_NUM = 830
 USERNAME = 'vyatta'
 PASSWORD = 'vyatta'
+TIMEOUT = 5
 
 # CLI session specific data
-TIMEOUT = 5
+CMD_WAIT_TIME = 1
 RCV_BUFF_SIZE = 1000
 
 
 def cli_disable_paging(rsh):
-    """Disable CLI paging on a remote device"""
+    """Execute CLI command that disables CLI paging on a remote device"""
 
     # Execute the command
     cmd = 'set terminal length 0\n'
     rsh.send(cmd)
     # wait for command to complete
-    time.sleep(1)
+    time.sleep(CMD_WAIT_TIME)
 
     # Flush out the read buffer
     rsh.recv(RCV_BUFF_SIZE)
@@ -44,19 +45,22 @@ def cli_enter_cfg_mode(rsh):
     cmd = "configure\n"
     rsh.send(cmd)
     # wait for command to complete
-    time.sleep(1)
+    time.sleep(CMD_WAIT_TIME)
 
     # Flush out the read buffer
     rsh.recv(RCV_BUFF_SIZE)
 
 
 def cli_get_interfaces(rsh):
-    """Obtain interface information from a remote device"""
+    """Execute CLI command that shows interface information
+    on a remote device
+    """
 
     # Execute the command
-    rsh.send('show interfaces\n')
+    cmd = "show interfaces\n"
+    rsh.send(cmd)
     # wait for command to complete
-    time.sleep(1)
+    time.sleep(CMD_WAIT_TIME)
 
     # Read the result of executed CLI command from the
     # channel buffer
@@ -83,7 +87,7 @@ def connect_ssh(ip, port, uname, pswd):
         #   to the SSH agent on the local machine for obtaining
         #   the private key
         rconn.connect(ip, username=uname, password=pswd, port=830,
-                      look_for_keys=False, allow_agent=False)
+                      look_for_keys=False, allow_agent=False, timeout=TIMEOUT)
         return rconn
     except (paramiko.BadHostKeyException,
             paramiko.AuthenticationException,
@@ -109,7 +113,6 @@ if ssh_conn:
     try:
         # Start an interactive shell session on the remote SSH server
         rsh = ssh_conn.invoke_shell()
-#        print "Initiated interactive shell session\n"
 
         # Read the initial prompt data from the channel
         # (flush out the read buffer)
