@@ -59,6 +59,9 @@ def device_info_params_args_keywords(ip, *args, **kwargs):
             print "key=%s, val=%s" % (k, v)
 
 
+# Script that demonstrates how to make calls for the function examples
+# defined in this module
+
 print ("'dev_info_params' function call "
        "(arguments passed as a list of positional parameters)")
 device_info_params('cisco', 'ios', '2.1.1', '192.0.2.168')
@@ -84,9 +87,6 @@ device_tuple = (
 device_info_args(*device_tuple)
 print "\n"
 
-
-# Script that demonstrates how to make calls for the function examples
-# defined in this module
 
 print ("'dev_info_args' function call "
        "(arguments passed as a list of positional parameters)")
