@@ -1,1 +1,107 @@
 Module 7. Network Devices as Objects
+
+Object-oriented programming overview
+- simple network device object
+
+Classes and objects
+- device class and creation of device objects
+
+Inheritance
+- device hierarchy with base device class for product family,
+  specific children, etc.
+
+Overloading
+- methods to get interface information, done differently
+  depending on device and version
+
+Encapsulation (data hiding)
+- details of device hidden from application
+
+
+
+Misc notes to be organized:
+
+Classes are created with the class statement.
+Roughly, classes are packages of functions that use and process
+built-in object types. Classes, though, are designed to create and manage
+new objects, and they also support inheritance - a mechanism of code
+customization and reuse.
+Classes are Python program units, just like functions and modules: they are
+another compartment for packaging logic and data
+
+
+Classes have three critical distinctions that make them more useful when it
+comes to building new objects:
+   o Multiple instances
+     Classes are essentially factories for generating one or more objects.
+     Every time we call a class, we generate a new object with a distinct
+     namespace. Each object generated from a class has access to the class’s
+     attributes and gets a namespace of its own for data that varies per object.
+    
+   o Customization via inheritance
+     Classes also support the OOP notion of inheritance; we can extend a class
+     by redefining its attributes outside the class itself. More generally,
+     classes can build up namespace hierarchies, which define names to be used
+     by objects created from classes in the hierarchy.
+     
+
+   o Operator overloading
+     By providing special protocol methods, classes can define objects
+     that respond to the sorts of operations we saw at work on built-in types.
+     For instance, objects made with classes can be sliced, concatenated,
+     indexed, and so on. Python provides hooks that classes can use to
+     intercept and implement any built-in type operation.
+
+
+Most of the OOP story in Python boils down to this expression:
+
+object.attribute
+
+When classes are involved, the preceding Python expression effectively
+translates to the following in natural language:
+   Find the first occurrence of attribute by looking in object, then in all
+   classes above it, from bottom to top and left to right.
+
+Notice that in the Python object model, classes and the instances you generate
+from them are two distinct object types:
+
+  o Classes
+   Serve as instance factories. Their attributes provide behavior, data and
+   functions, that is inherited by all the instances generated from them
+   (e.g., a function to compute an employee’s salary from pay and hours).
+   
+  o Instances
+   Represent the concrete items in a program’s domain. Their attributes
+   record data that varies per specific object (e.g., an employee’s Social
+   Security number).
+
+In terms of search trees, an instance inherits attributes from its class,
+and a class inherits attributes from all classes above it in the tree.
+
+Classes higher in the tree are called as "superclasses" (or "base classes"),
+classes lower in the tree are called as "subclasses" (or "derived classes")
+
+
+The primary difference between classes and instances is that classes are
+a kind of factory for generating instances.
+
+
+Python automatically calls a method named __init__ each time an instance is
+generated from a class.
+The __init__ method is known as the constructor, because of when it is run
+
+There is always an implied subject in functions within a class,
+usually the “self” keyword is used as the reference to this object
+instance.
+
+When a def appears inside a class it is known as a method,
+and it automatically receives a special first argument, called "self" by
+convention, that provides a handle back to the instance to be processed.
+When a method assigns to a "self" attribute, it creates or changes an
+attribute in an instance at the bottom of the class tree  because "self"
+automatically refers to the instance being processed.
+
+
+
+
+
