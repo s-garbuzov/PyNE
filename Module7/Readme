@@ -86,10 +86,21 @@ The primary difference between classes and instances is that classes are
 a kind of factory for generating instances.
 
 
-Python automatically calls a method named __init__ each time an instance is
-generated from a class.
-The __init__ method is known as the constructor, because of when it is run
+Variables that belong to an object or class are referred to as fields.
+Functions defined inside of a class are called methods of the class.
+Collectively, the fields and methods can be referred to as the attributes
+of that class.
 
+
+Fields are of two types - they can belong to each instance/object
+of the class or they can belong to the class itself. They are called
+instance variables and class variables respectively.
+
+Class methods have only one specific difference from ordinary functions - they
+must have an extra first name that has to be added to the beginning of the
+parameter list, but you do not give a value for this parameter when you call
+the method, Python will provide it. This particular variable refers to the
+object itself, and by convention, it is given the name "self".
 There is always an implied subject in functions within a class,
 usually the “self” keyword is used as the reference to this object
 instance.
@@ -100,6 +111,12 @@ convention, that provides a handle back to the instance to be processed.
 When a method assigns to a "self" attribute, it creates or changes an
 attribute in an instance at the bottom of the class tree  because "self"
 automatically refers to the instance being processed.
+
+Python automatically calls a method named __init__ each time an instance is
+generated from a class.
+The __init__ method is known as the constructor, because of when it is run.
+
+
 
 
 

@@ -61,12 +61,52 @@ for device in brocade_devices:
 
 
 #
-# Similar functionality implemented with the use of def function
+# Similar functionality implemented with the use of multiple def functions
 #
 
 print "\n"
 print "%s" % ("-" * 70)
-print " Device selection implemented with the use of def function"
+print " Device selection implemented with the use of multiple def functions"
+print "%s" % ("-" * 70)
+
+
+def is_cisco_device(device):
+    return (device['vendor'].lower() == 'cisco')
+
+
+def is_hp_device(device):
+    return (device['vendor'].lower() == 'hp')
+
+
+def is_brocade_device(device):
+    return (device['vendor'].lower() == 'brocade')
+
+
+cisco_devices = filter(is_cisco_device, all_devices)
+print "\n"
+print "List of Cisco network devices:"
+for device in cisco_devices:
+    print " %s" % device
+
+hp_devices = filter(is_hp_device, all_devices)
+print "\n"
+print "List of HP network devices: %s"
+for device in hp_devices:
+    print " %s" % device
+
+brocade_devices = filter(is_brocade_device, all_devices)
+print "\n"
+print "List of Brocade network devices:"
+for device in brocade_devices:
+    print " %s" % device
+
+#
+# Similar functionality implemented with the use of a single def function
+#
+
+print "\n"
+print "%s" % ("-" * 70)
+print " Device selection implemented with the use of a single def function"
 print "%s" % ("-" * 70)
 
 
@@ -88,7 +128,6 @@ print "\n"
 print "List of HP network devices: %s"
 for device in hp_devices:
     print " %s" % device
-
 
 brocade_devices = get_vendor_devices(all_devices, 'brocade')
 print "\n"
