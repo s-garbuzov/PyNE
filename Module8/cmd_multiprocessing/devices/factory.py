@@ -14,8 +14,6 @@ def device_class_factory(device):
     """ TBD"""
     try:
         dev_type = device['device_type']
-#        dev_attr = device['attributes']
-#        dev_class = CLASS_MAP[dev_type](**dev_attr)
         aclass = CLASS_MAP[dev_type](**device)
         return aclass
     except(Exception) as e:
