@@ -30,7 +30,7 @@ def get_version(device, msg_queue):
                 'os_version': version}
     result = {'status': status, 'dev_info': dev_info}
 
-    # Place the result on the queue or reading by the parent process
+    # Place the result on the queue for reading by the parent process
     msg_queue.put(result)
 
 
