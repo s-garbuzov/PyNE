@@ -116,9 +116,3 @@ Python automatically calls a method named __init__ each time an instance is
 generated from a class.
 The __init__ method is known as the constructor, because of when it is run.
 
-
-
-
-
-
-
