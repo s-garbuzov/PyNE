@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 """
-cli_command_telnet.py
 
 Example of a script that executes CLI commands on a remote
 device via TELNET connection.
 NOTE: CLI commands are device specific, so this script
       needs to be adapted to a concrete device.
+
+cli_command_telnet.py
+
 """
 
 # built-in modules

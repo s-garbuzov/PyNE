@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 """
-cli_command_ssh.py
 
 Example of a script that executes CLI commands on a remote
 device via SSH connection.
 NOTE: CLI commands are device specific, so this script
       needs to be adapted to a concrete device.
+
+cli_command_ssh.py
 """
 
 # built-in modules
