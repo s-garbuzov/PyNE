@@ -17,7 +17,7 @@ def get_user_credentials():
 	return (user, pwd)
 
 
-def establish_telnet_session(switch, switch_prompt, username, password):
+def establish_telnet_session(switch, switch_prompt, user, pwd):
 	pexpect_timeout = 30 # set timeout for pexpect (i.e., how long to wait for match conditions)
 	enable_pwd = pwd # set the enable password to the same value as password for this lab exercise
 
@@ -71,8 +71,8 @@ def main():
 	switch_prompt = '#'
 	config_filename = 'config_output.txt'
 
-	(username, password) = get_user_credentials()
-	telnet_session = establish_telnet_session(switch, switch_prompt, username, password)
+	(user, pwd) = get_user_credentials()
+	telnet_session = establish_telnet_session(switch, switch_prompt, user, pwd)
 	setup_session(telnet_session, switch_prompt)
 	config = show_config(switch)
 	write_config(config_filename, config)
