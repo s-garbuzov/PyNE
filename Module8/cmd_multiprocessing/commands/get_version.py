@@ -72,7 +72,9 @@ def main():
         p.start()  # Start the process
 
     # Get sub-process results from the output queue
-    results = [msg_queue.get() for p in jobs]
+    results = []
+    for p in jobs:
+        results.append(msg_queue.get())
 
     # Wait until all processes have terminated (making sure all
     # child processes have been terminated, no zombies left)
@@ -84,5 +86,4 @@ def main():
     logger.debug("\nEnded: %s" % (datetime.now()))
 
 if __name__ == '__main__':
-
     main()
