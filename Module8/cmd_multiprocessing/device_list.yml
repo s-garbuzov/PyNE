@@ -11,7 +11,8 @@
 #    device_type - Type of device (manufacturer and OS type)
 #    admin_name  - administrator user name on the device
 #    admin_pswd  - administrator user password on the device
-#    timeout     - max timeout for connection to the device
+#    timeout     - max connectivity timeout
+#    verbose     - enable execution trace logging (debugging)
 #
 #    Configuration example for a device entry:
 #
@@ -21,30 +22,43 @@
 #    admin_name: "name"
 #    admin_pswd: "password"
 #    timeout: 5
+#    verbose: True
 #
 ##############################################################################
 
 # Device 1
-- ip_addr: "10.254.8.12"
+- ip_addr: "172.22.17.110"
+  port: 830
+  device_type: 'brocade_vrouter'
+  admin_name: 'vyatta'
+  admin_pswd: 'vyatta'
+  timeout: 7
+  verbose: False
+
+# Device 2
+- ip_addr: "10.254.8.10"
   port: 22
   device_type: 'cisco_ios'
   admin_name: 'test_user1'
   admin_pswd: 'test_password1'
   timeout: 7
+  verbose: False
 
-# Device 2
-- ip_addr: '10.254.8.10'
+# Device 3
+- ip_addr: '10.254.8.12'
   port: 22
   device_type: 'cisco_eos'
   admin_name: 'test_user2'
   admin_pswd: 'test_password2'
   timeout: 7
+  verbose: False
 
-# Device 3
-- ip_addr: '10.254.8.12'
+# Device 4
+- ip_addr: '10.254.8.17'
   port: 22
   device_type: 'cisco_xr'
   admin_name: 'test_user3'
   admin_pswd: 'test_password3'
   timeout: 7
+  verbose: False
 

@@ -1,12 +1,15 @@
 from cisco_ios import CiscoIOS
 from cisco_eos import CiscoEOS
 from cisco_xr import CiscoXR
+from brocade_vrouter import BrocadeVRouter
+
 
 #  Mapping of supported devices
 CLASS_MAP = {
     'cisco_ios': CiscoIOS,
     'cisco_eos': CiscoEOS,
-    'cisco_xr': CiscoXR
+    'cisco_xr': CiscoXR,
+    'brocade_vrouter': BrocadeVRouter
 }
 
 

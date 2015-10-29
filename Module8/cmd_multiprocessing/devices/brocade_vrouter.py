@@ -5,7 +5,7 @@ import socket
 import paramiko
 
 
-class CiscoIOS(object):
+class BrocadeVRouter(object):
     MAX_RCV_BUFFER = 1000
 
     def __init__(self, **kwargs):
@@ -17,14 +17,14 @@ class CiscoIOS(object):
     def get_version(self):
         time.sleep(0)
         status = True
-        output = "1.1.1"
+        output = "3.2.1R6"
         return status, output
 
     def get_vendor(self):
-        return "Cisco"
+        return "Brocade"
 
     def get_os_type(self):
-        return "IOS"
+        return "Linux"
 
     def get_ipaddr(self):
         ip_addr = None

@@ -2,7 +2,7 @@
 
 """
 
-Example of a script that executes CLI commands on a remote
+Example of a script that executes a CLI command on a remote
 device via SSH connection.
 NOTE: CLI commands are device specific, so this script
       needs to be adapted to a concrete device.
@@ -57,8 +57,8 @@ def enter_cli_cfg_mode(rsh):
 
     cmd = "configure\n"
     # Execute the command (wait for command to complete)
-    time.sleep(1)
     rsh.send(cmd)
+    time.sleep(1)
 
     # Flush out the receive buffer
     rsh.recv(MAX_RCV_BUFFER)
@@ -75,16 +75,15 @@ def connect_ssh(device, verbose=False):
              to remote SSH server on success, None otherwise.
     """
 
-    # Create an instance object of the 'SSHClient' class
-    rconn = paramiko.SSHClient()
-
-    # Allow auto adding of unknown hosts to the known hosts in local
-    # SSH configuration (make sure it is okay with your security
-    # policy requirements)
-    rconn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    # Establish SSH connection
     try:
+        # Create an instance object of the 'SSHClient' class
+        rconn = paramiko.SSHClient()
+
+        # Allow auto adding of unknown hosts to the known hosts in local
+        # SSH configuration (make sure it is okay with your security
+        # policy requirements)
+        rconn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         # o 'look_for_keys' is set to False to disable searching
         #   for discoverable private key files in '~/.ssh/'
         # o 'allow_agent' is set to False to disable connecting
@@ -124,11 +123,11 @@ def execute_command(device, cli_command, read_delay=1):
                         SSH session to a target device.
     :param str cli_command: CLI command to be executed.
     :param int read_delay: time to wait for the CLI command to complete.
-    :param bool verbose: enables code execution trace log.
     :return: output of the command on success, error message otherwise.
     """
 
     assert(isinstance(device, dict))
+    output = None
     verbose = device['verbose']
 
     # Connect to device and execute the command

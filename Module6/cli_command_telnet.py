@@ -2,7 +2,7 @@
 
 """
 
-Example of a script that executes CLI commands on a remote
+Example of a script that executes a CLI command on a remote
 device via TELNET connection.
 NOTE: CLI commands are device specific, so this script
       needs to be adapted to a concrete device.
@@ -143,8 +143,9 @@ def execute_command(device, cli_command, read_delay=1):
     """
 
     assert(isinstance(device, dict))
-
+    output = None
     verbose = device['verbose']
+
     # Connect to device and execute the command
     telnet_conn = connect_telnet(device, verbose)
     if telnet_conn:
