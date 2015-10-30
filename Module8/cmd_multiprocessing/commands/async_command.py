@@ -3,35 +3,45 @@
 """
 
 Example of a script that asynchronously executes a CLI command
-on multiple remote devices via SSH connection.
+on multiple remote devices.
 NOTE: CLI commands are device specific, so this package
       needs to be adapted to concrete devices.
 
-cli_command_ssh.py
+async_command.py
 """
 
 import multiprocessing as mp
 
 from datetime import datetime
 from cmd_multiprocessing.common.utils import cfg_load
-from cmd_multiprocessing.devices.factory import device_class_factory
+from cmd_multiprocessing.devices.device_factory import DeviceFactory
 
 
 def execute_command(device, cli_command, read_delay, msg_queue):
     """
-    Execute a CLI command on a remote device over established SSH channel.
-    This function is asynchronously executed in a context of submitted process.
+    Execute a CLI command on a remote device over established
+    management session channel.
+    This function is asynchronously executed in a context of particular
+    submitted process.
     :param dict device: dictionary containing information for establishing
-        SSH session to a target device.
+        management session to a target device.
     :param str cli_command: CLI command to be executed.
     :param int read_delay: time to wait for the CLI command to complete.
     :return: output of the command on success, error message otherwise.
     """
 
     # Allocate object representing the device
-    obj = device_class_factory(device)
-    # Request object to execute the command
-    output = obj.exec_cmd_ssh(cli_command, read_delay)
+    obj = DeviceFactory.create(device)
+
+    # Open management session
+    obj.open_session()
+
+    # Execute the command
+    output = obj.execute_command("show interfaces\n")
+
+    # Close management session
+    obj.close_session()
+
     # Return the result
     msg_queue.put("[%s %s %s] %s" %
                   (obj.get_vendor(), obj.get_os_type(),
@@ -39,7 +49,7 @@ def execute_command(device, cli_command, read_delay, msg_queue):
 
 
 def show_results(results):
-    """Display results of command execution collected form all devices"""
+    """Display results of a command execution collected from all devices"""
 
     print("\n")
     print("Results:\n")
@@ -52,7 +62,8 @@ def show_results(results):
 
 def dispatch_command(cfg_file, cmd_string, read_delay=1):
     """
-    Dispatch command execution on multiple devices, collect and return results.
+    Dispatches command for asynchronous execution on multiple devices,
+    then collects and returns results.
     :param str cfg_file: path to the configuration file containing
         list of target devices.
     :param str cli_command: CLI command to be executed.

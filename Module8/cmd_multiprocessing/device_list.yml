@@ -1,13 +1,14 @@
 ##############################################################################
 #
 #    This configuration file contains information used for establishing
-#    communication sessions with a number of network devices
+#    asynchronous management sessions with multiple network devices
 #
 #    Following configuration parameters have to be provided
 #    on a per device basis:
 #
 #    ip_addr     - IP address of the device
 #    port        - TCP/UDP destination port number on the device
+#    channel     - type of communication channel ('ssh' or 'telnet')
 #    device_type - Type of device (manufacturer and OS type)
 #    admin_name  - administrator user name on the device
 #    admin_pswd  - administrator user password on the device
@@ -18,6 +19,7 @@
 #
 #    ip_addr: 192.0.2.168
 #    port: 22
+#    channel: 'ssh'
 #    device_type: 'cisco_ios'
 #    admin_name: "name"
 #    admin_pswd: "password"
@@ -29,19 +31,21 @@
 # Device 1
 - ip_addr: "172.22.17.110"
   port: 830
+  channel: 'ssh'
   device_type: 'brocade_vrouter'
   admin_name: 'vyatta'
   admin_pswd: 'vyatta'
-  timeout: 7
-  verbose: False
+  timeout: 3
+  verbose: True
 
 # Device 2
-- ip_addr: "10.254.8.10"
-  port: 22
-  device_type: 'cisco_ios'
-  admin_name: 'test_user1'
-  admin_pswd: 'test_password1'
-  timeout: 7
+- ip_addr: "172.22.17.110"
+  port: 23
+  channel: 'telnet'
+  device_type: 'brocade_vrouter'
+  admin_name: 'vyatta'
+  admin_pswd: 'vyatta'
+  timeout: 3
   verbose: False
 
 # Device 3
