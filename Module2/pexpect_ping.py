@@ -44,15 +44,14 @@ def print_results(ping):
     cmd_result = ping.expect([pexpect.EOF, pexpect.TIMEOUT])
 
     # if an EOF is reached, do the following
-    # an EOF condition indicates the command invoked by pexpect has exited
     if cmd_result==0:        
 
         # print the output of the ping command that occurred before match
         ping_cmd_output = ping.before
         print ping_cmd_output
 
-    # if a pexpect match condition is not made within the timeout interval,
-    # then a timeout occurs
+    # if no other match condition is met before the expiration of the timeout
+    # value, then a timeout occurs
     if cmd_result==1:
         print '\nPexpect timed out prior to matching any other condition.\n'
 
