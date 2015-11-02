@@ -51,6 +51,7 @@
 # Device 3
 - ip_addr: '10.254.8.12'
   port: 22
+  channel: 'ssh'
   device_type: 'cisco_eos'
   admin_name: 'test_user2'
   admin_pswd: 'test_password2'
@@ -60,6 +61,7 @@
 # Device 4
 - ip_addr: '10.254.8.17'
   port: 22
+  channel: 'ssh'
   device_type: 'cisco_xr'
   admin_name: 'test_user3'
   admin_pswd: 'test_password3'

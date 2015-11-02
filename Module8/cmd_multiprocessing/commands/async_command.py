@@ -4,15 +4,21 @@
 
 Example of a script that asynchronously executes a CLI command
 on multiple remote devices.
-NOTE: CLI commands are device specific, so this package
-      needs to be adapted to concrete devices.
+CLI commands are device specific, so this package
+needs to be adapted to concrete devices.
+
+NOTES: This package requires installation of the 'paramiko' Python package
+          pip install paramiko
+       The 'paramiko' package is documented at:
+          http://docs.paramiko.org
 
 async_command.py
+
 """
 
 import multiprocessing as mp
 
-from datetime import datetime
+# from datetime import datetime
 from cmd_multiprocessing.common.utils import cfg_load
 from cmd_multiprocessing.devices.device_factory import DeviceFactory
 
@@ -20,8 +26,8 @@ from cmd_multiprocessing.devices.device_factory import DeviceFactory
 def execute_command(device, cli_command, read_delay, msg_queue):
     """
     Execute a CLI command on a remote device over established
-    management session channel.
-    This function is asynchronously executed in a context of particular
+    management channel.
+    This function is asynchronously executed in a context of a
     submitted process.
     :param dict device: dictionary containing information for establishing
         management session to a target device.
@@ -33,14 +39,16 @@ def execute_command(device, cli_command, read_delay, msg_queue):
     # Allocate object representing the device
     obj = DeviceFactory.create(device)
 
-    # Open management session
-    obj.open_session()
+    # Connect to device (initiate management session)
+    obj.connect()
 
-    # Execute the command
+    # Execute command on the device and get the result
+    obj.disable_paging()
+    obj.enter_cfg_mode()
     output = obj.execute_command("show interfaces\n")
 
-    # Close management session
-    obj.close_session()
+    # Disconnect from device (close management session)
+    obj.disconnect()
 
     # Return the result
     msg_queue.put("[%s %s %s] %s" %
@@ -51,13 +59,13 @@ def execute_command(device, cli_command, read_delay, msg_queue):
 def show_results(results):
     """Display results of a command execution collected from all devices"""
 
-    print("\n")
-    print("Results:\n")
+#    print("\n")
+#    print("Results:\n")
     for result in results:
         print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
         print("%s" % result)
         print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-    print("\n")
+#    print("\n")
 
 
 def dispatch_command(cfg_file, cmd_string, read_delay=1):
@@ -75,8 +83,6 @@ def dispatch_command(cfg_file, cmd_string, read_delay=1):
     if(devices is None):
         print("Config file '%s' read error " % cfg_load)
         exit(1)
-
-    print("\nStarted: %s" % (datetime.now()))
 
     # Create a queue for communication with child processes
     msg_queue = mp.Queue()
@@ -100,12 +106,14 @@ def dispatch_command(cfg_file, cmd_string, read_delay=1):
     for p in jobs:
         p.join()
 
-    print("\nEnded: %s" % (datetime.now()))
     return results
 
 
 if __name__ == '__main__':
     cfg_file = "../device_list.yml"
     cmd_string = "show interfaces\n"
+    print("\nCommand to be executed: %s" % cmd_string)
     results = dispatch_command(cfg_file, cmd_string, read_delay=1)
+    print("\nCommand execution results:\n")
     show_results(results)
+    print("\n")

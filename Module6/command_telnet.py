@@ -4,10 +4,10 @@
 
 Example of a script that executes a CLI command on a remote
 device via TELNET connection.
-NOTE: CLI commands are device specific, so this script
-      needs to be adapted to a concrete device.
+CLI commands are device specific, so this script needs
+to be adapted to a concrete device.
 
-cli_command_telnet.py
+command_telnet.py
 
 """
 
@@ -22,6 +22,7 @@ device = {
     'timeout': 3,
     'username': 'vyatta',
     'password': 'vyatta',
+    'secret': 'secret',
     'verbose': True
 }
 
@@ -79,56 +80,82 @@ def enter_cli_cfg_mode(telnet_conn, read_delay=1):
         return True
 
 
-def connect_telnet(device, verbose=False):
+def connect_telnet(device):
     """
     Establish TELNET connection to a remote device.
 
     :param dict device: dictionary containing information for establishing
-                        TELNET session to a target device.
-    :param bool verbose: enables code execution trace log.
+        TELNET session to a target device.
     :return: an instance of telnetlib.Telnet class connected
-             to remote TELNET server on success, None otherwise.
+        to remote TELNET server on success, None otherwise.
     """
 
     try:
         # Create an instance object of the 'Telnet' class
-        rconn = telnetlib.Telnet()
+        telnet_client = telnetlib.Telnet()
 
         # uncomment following line to enable 'telnetlib' debug tracing
-        # rconn.set_debuglevel(1)
+        # telnet_client.set_debuglevel(1)
 
         # Connect to device
         ip_addr = device['ip_addr']
         port = device['port']
         timeout = device['timeout']
-        rconn.open(ip_addr, port, timeout)
+        telnet_client.open(ip_addr, port, timeout)
+        if(device['verbose']):
+            print("TELNET connection to %s:%s has been established" %
+                  (device['ip_addr'], device['port']))
+
         # Login to device
         uname = device['username']
         if uname:
-                rconn.read_until('login:')
-                rconn.write('%s\n' % uname)
+            login_prompt = 'login:'
+            response = telnet_client.read_until(login_prompt, timeout)
+            if login_prompt not in response:
+                if(device['verbose']):
+                    print("failed to get '%s' prompt" % login_prompt)
+                disconnect_telnet(device, telnet_client)
+                return None
+            telnet_client.write('%s\n' % uname)
+
         pswd = device['password']
         if pswd:
-            rconn.read_until('assword:')
-            rconn.write('%s\n' % pswd)
+            pswd_prompt = 'assword:'
+            response = telnet_client.read_until(pswd_prompt, timeout)
+            if pswd_prompt not in response:
+                if(device['verbose']):
+                    print("failed to get '%s' prompt" % pswd_prompt)
+                disconnect_telnet(device, telnet_client)
+                return None
+            telnet_client.write('%s\n' % pswd)
 
-        # Read device output until one from a list of regular expressions
-        # matches or until timeout
-        r = rconn.expect(['Login incorrect', '\%s' % OPER_PROMPT], timeout)
-        if r[0] == -1:
+        # Check if we got to initial operator prompt
+        oper_prompt = '\%s' % OPER_PROMPT
+        r = telnet_client.expect([oper_prompt], timeout)
+        if(r[0] == -1):
+            if(device['verbose']):
+                print("failed to get '%s' prompt" % oper_prompt)
+            disconnect_telnet(device, telnet_client)
             return None
-        else:
-            return rconn
+
+        if(device['verbose']):
+            print("Successfully logged on to %s:%s" %
+                  (device['ip_addr'], device['port']))
+
+        return telnet_client
+
     except (Exception) as e:
-        if(verbose):
-            print "!!!Error: %s " % e
+        print "!!!Error: %s " % e
         return None
 
 
-def disconnect_telnet(rconn):
+def disconnect_telnet(device, telnet_client):
     """Close TELNET connection to a remote device"""
     try:
-        rconn.close()
+        telnet_client.close()
+        if(device['verbose']):
+            print("TELNET connection to %s:%s has been closed" %
+                  (device['ip_addr'], device['port']))
     except (Exception) as e:
         print "!!!Error, %s " % e
 
@@ -147,12 +174,8 @@ def execute_command(device, cli_command, read_delay=1):
     verbose = device['verbose']
 
     # Connect to device and execute the command
-    telnet_conn = connect_telnet(device, verbose)
+    telnet_conn = connect_telnet(device)
     if telnet_conn:
-        if(verbose):
-            print("Established TELNET connection to %s:%s\n" %
-                  (device['ip_addr'], device['port']))
-
         # Turn off CLI paging and enter configuration mode
         disable_cli_paging(telnet_conn, read_delay)
         enter_cli_cfg_mode(telnet_conn, read_delay)
@@ -168,16 +191,13 @@ def execute_command(device, cli_command, read_delay=1):
             telnet_conn.expect(['Invalid command', ADMIN_PROMPT], read_delay)
         if match is None:
             output = "Failed to execute command"
-            # Flush out the read buffer
-            telnet_conn.read_until(ADMIN_PROMPT, read_delay)
         else:
             output = text
+            if((device['verbose'])):
+                print("CLI command %r has been executed" % cli_command)
 
         # Terminate TELNET session
-        disconnect_telnet(telnet_conn)
-        if(verbose):
-            print("Closed TELNET connection to %s:%s\n" %
-                  (device['ip_addr'], device['port']))
+        disconnect_telnet(device, telnet_conn)
     else:
         output = "Failed to execute command"
         if(verbose):
@@ -188,5 +208,10 @@ def execute_command(device, cli_command, read_delay=1):
 
 if __name__ == '__main__':
     cmd_string = "show interfaces\n"
+    print("\nCommand to be executed: %s" % cmd_string)
     output = execute_command(device, cmd_string, read_delay=1)
+    print("\nCommand execution result:\n")
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     print output
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print("\n")

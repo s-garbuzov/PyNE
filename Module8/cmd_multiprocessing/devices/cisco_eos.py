@@ -34,10 +34,10 @@ class CiscoEOS(object):
             ip_addr = self.ip_addr
         return ip_addr
 
-    def open_session(self):
+    def connect(self):
         pass
 
-    def close_session(self):
+    def disconnect(self):
         pass
 
     def disable_paging(self):
@@ -48,61 +48,4 @@ class CiscoEOS(object):
 
     def execute_command(self, command, read_delay=1):
         return "Unimplemented"
-        pass
-
-
-class SSHSession(object):
-    MAX_RCV_BUFFER = 1000
-
-    def __init__(self, ip_addr, port,
-                 admin_name, admin_pswd,
-                 timeout=None, verbose=False):
-        self.ip_addr = ip_addr
-        self.port = port
-        self.admin_name = admin_name
-        self.admin_pswd = admin_pswd
-        self.timeout = timeout
-        self.verbose = verbose
-        self.channel = None
-        self.remote_shell = None
-
-    def connect(self):
-        pass
-
-    def disconnect(self):
-        pass
-
-    def send(self, data):
-        pass
-
-    def recv(self):
-        pass
-
-
-class TELNETSession(object):
-    OPER_PROMPT = '$'
-    ADMIN_PROMPT = '#'
-
-    def __init__(self, ip_addr, port,
-                 admin_name, admin_pswd,
-                 timeout=None, verbose=False):
-        self.channel = None
-        self.ip_addr = ip_addr
-        self.port = port
-        self.admin_name = admin_name
-        self.admin_pswd = admin_pswd
-        self.timeout = timeout
-        self.verbose = verbose
-        self.channel = None
-
-    def connect(self):
-        pass
-
-    def disconnect(self):
-        pass
-
-    def send(self, data):
-        pass
-
-    def recv(self, timeout=1):
         pass
