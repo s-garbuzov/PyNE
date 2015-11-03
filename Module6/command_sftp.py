@@ -24,17 +24,6 @@ import functools
 # third-party modules
 import paramiko
 
-# Remote device SFTP session specific info
-device = {
-    'ip_addr': '172.22.17.110',
-    'port': 830,
-    'timeout': 3,
-    'username': 'vyatta',
-    'password': 'vyatta',
-    'secret': 'secret',
-    'verbose': True
-}
-
 
 def connect_ssh(device):
     """
@@ -108,6 +97,8 @@ def get_file(device, remote_path, local_path):
     """Copy a remote file ('remote_path') from SFTP server running
     on the 'device' to the 'local_path' on this machine."""
 
+    success = False
+
     # Make sure that the local placeholder for the copy of the remote file
     # does already exist
     basedir = os.path.dirname(local_path)
@@ -120,22 +111,26 @@ def get_file(device, remote_path, local_path):
     # Connect to remote SSH server running on the device
     ssh_conn = connect_ssh(device)
     if ssh_conn is not None:
+        sftp_session = None
         try:
             # Open an SFTP session on the SSH server
-            sftp = ssh_conn.open_sftp()
+            sftp_session = ssh_conn.open_sftp()
             callback_func = None
             if(device['verbose']):
                 print ("SFTP session started")
                 callback_func = functools.partial(transfer_progress,
                                                   remote_path)
-            sftp.get(remote_path, local_path, callback_func)
+            sftp_session.get(remote_path, local_path, callback_func)
             if(device['verbose']):
                 print("Transfer of %r has completed" % remote_path)
+            success = True
         except IOError as e:
+            success = False
             print "!!! Error: %s " % e
         finally:
             # Close SFTP session
-            sftp.close()
+            if(sftp_session is not None):
+                sftp_session.close()
             # Disconnect from SSH Server
             disconnect_ssh(device, ssh_conn)
             if(device['verbose']):
@@ -143,9 +138,30 @@ def get_file(device, remote_path, local_path):
     else:
         print("!!!Error: failed to connect to device")
 
+    return success
 
-if __name__ == '__main__':
+
+def main():
+    # Remote device SFTP session specific info
+    device = {
+        'ip_addr': '172.22.17.110',
+        'port': 830,
+        'timeout': 3,
+        'username': 'vyatta',
+        'password': 'vyatta',
+        'secret': 'secret',
+        'verbose': True
+    }
+
     file_name = 'auth.log'
     remote_path = "/var/log/%s" % file_name
     local_path = "/tmp/mylogs/%s" % file_name
-    result = get_file(device, remote_path, local_path)
+    success = get_file(device, remote_path, local_path)
+    if success:
+        print("Successfully loaded '%s' file to '%s'" %
+              (remote_path, local_path))
+    else:
+        print("!!!Error, failed to load '%s' file" % remote_path)
+
+if __name__ == '__main__':
+    main()
