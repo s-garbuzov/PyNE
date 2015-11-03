@@ -105,8 +105,8 @@ def transfer_progress(filename, transfered, total):
 
 
 def get_file(device, remote_path, local_path):
-    """ Copy a remote file ('remote_path') from SFTP server running
-    on the 'device' to the 'local_path' on the this machine."""
+    """Copy a remote file ('remote_path') from SFTP server running
+    on the 'device' to the 'local_path' on this machine."""
 
     # Make sure that the local placeholder for the copy of the remote file
     # does already exist
