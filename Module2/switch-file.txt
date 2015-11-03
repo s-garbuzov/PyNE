@@ -5,18 +5,18 @@
 # as an alternative, you could ignore all lines read by the script that begin with a "#" using a different regular expression
 
 # lab pod 1 switches
-lab1-1.switch.virl-lab.cisco.com
-lab1-2.switch.virl-lab.cisco.com
-lab1-3.switch.virl-lab.cisco.com with extra info making it not conform to switch naming convention
+lab1-1.switch.cml-lab.cisco.com
+lab1-2.switch.cml-lab.cisco.com
+lab1-3.switch.cml-lab.cisco.com with extra info making it not conform to switch naming convention
 
 # lab pod 2 switches
-lab2-1.switch.virl-lab.cisco.com
-lab2-2.switch.virl-lab.cisco.com
+lab2-1.switch.cml-lab.cisco.com
+lab2-2.switch.cml-lab.cisco.com
 
 # lab pod 3 switches
-lab3-1.switch.virl-lab.cisco.com
-lab3-2.switch.virl-lab.cisco.com
+lab3-1.switch.cml-lab.cisco.com
+lab3-2.switch.cml-lab.cisco.com
 
 # lab pod 4 switches
-lab4-1.switch.virl-lab.cisco.com
-lab4-2.switch.virl-lab.cisco.com
+lab4-1.switch.cml-lab.cisco.com
+lab4-2.switch.cml-lab.cisco.com
