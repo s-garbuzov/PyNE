@@ -4,7 +4,7 @@ import telnetlib
 
 
 class TELNETChannel(object):
-    """TBD"""
+    """Represents TELNET connection to a remote device."""
     def __init__(self, ip_addr, port,
                  admin_name, admin_pswd,
                  login_prompt, password_prompt,

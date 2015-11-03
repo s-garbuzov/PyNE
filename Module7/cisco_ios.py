@@ -50,7 +50,8 @@ class CiscoIOS(NetworkDevice):
 
         if(self.channel == 'ssh'):
             channel = SSHChannel(self.ip_addr, self.port,
-                                 self.admin_name, self.admin_pswd,
+                                 self.username, self.password,
+                                 self.max_bytes,
                                  self.timeout, self.verbose)
         elif(self.channel == 'telnet'):
             channel = TELNETChannel(self.ip_addr, self.port,
