@@ -7,15 +7,25 @@
 # usage:
 # python get-info-via-cli-switch.py -u [username] -p [password]
 
+
 import argparse
 
-cli_switches = argparse.ArgumentParser(description='This script demonstrates using command line switches.')
-cli_switches.add_argument('-u',default='admin', dest='user', help='Specify the username.')
-cli_switches.add_argument('-p',default='cisco', dest='pw', help='Specify the password.')
-returned_cli_switches = cli_switches.parse_args()
 
-username = returned_cli_switches.user
-password = returned_cli_switches.pw
+def get_cli_switch_values():
+    cli_switches = argparse.ArgumentParser(description= \
+            'This script demonstrates using command line switches.')
+    cli_switches.add_argument('-u',default='admin', dest='username', \
+            help='Specify the username.')
+    cli_switches.add_argument('-p',default='cisco', dest='password', \
+            help='Specify the password.')
+    cli_switch_values = cli_switches.parse_args()
+    return (cli_switch_values.username, cli_switch_values.password)
 
-print '\nThe password for', username, 'is', password
-print '\nPrinting passwords is a bad idea, but is done here for demonstration purposes.'
+
+def main ():
+    (username, password) = get_cli_switch_values()
+    print '\nThe password for', username, 'is', password
+
+
+if __name__ == '__main__':
+    main ()
