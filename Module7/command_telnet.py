@@ -1,26 +1,38 @@
 #!/usr/bin/env python
 
+"""
+
+Example of a script that executes a CLI command on a remote
+device via TELNET connection.
+
+Administrator login options and CLI commands are device specific,
+thus this script needs to be adapted to a concrete device specifics.
+Current script assumes interaction with Cisco IOS device.
+
+command_telnet.py
+
+"""
 
 from cisco_ios import CiscoIOS
 
-# Remote device TELNET session specific info
-device = {
-    'ip_addr': '172.22.17.111',
-    'port': 23,
-    'channel': 'telnet',
-    'timeout': 3,
-    'username': 'testuser',
-    'password': 'testpassword',
-    'login_prompt': 'sername:',
-    'password_prompt': 'assword:',
-    'oper_prompt': '$',
-    'admin_prompt': '#',
-    'secret': 'secret',
-    'verbose': True
-}
-
 
 def main():
+    # Remote device TELNET session specific info
+    device = {
+        'ip_addr': '172.22.17.111',
+        'port': 23,
+        'channel': 'telnet',
+        'timeout': 3,
+        'username': 'testuser',
+        'password': 'testpassword',
+        'login_prompt': 'sername:',
+        'password_prompt': 'assword:',
+        'oper_prompt': '$',
+        'admin_prompt': '#',
+        'secret': 'secret',
+        'verbose': True
+    }
+
     cmd_string = "show interfaces\n"
     print("\nCommand to be executed: %s" % cmd_string)
 
