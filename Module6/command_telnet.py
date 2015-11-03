@@ -4,8 +4,10 @@
 
 Example of a script that executes a CLI command on a remote
 device via TELNET connection.
-CLI commands are device specific, so this script needs
-to be adapted to a concrete device.
+
+Administrator login options and CLI commands are device specific,
+thus this script needs to be adapted to a concrete device specifics.
+Current script assumes interaction with Cisco IOS device.
 
 command_telnet.py
 
@@ -15,23 +17,7 @@ command_telnet.py
 import telnetlib
 
 
-# Remote device TELNET session specific info
-device = {
-    'ip_addr': '172.22.17.110',
-    'port': 23,
-    'timeout': 3,
-    'username': 'vyatta',
-    'password': 'vyatta',
-    'secret': 'secret',
-    'verbose': True
-}
-
-# CLI specific data
-OPER_PROMPT = '$'
-ADMIN_PROMPT = '#'
-
-
-def disable_cli_paging(telnet_conn, read_delay=1):
+def disable_cli_paging(device, telnet_conn, read_delay=1):
     """
     Disable CLI paging on a remote device.
     :param telnetlib.Telnet telnet_conn: an instance of TELNET client
@@ -41,22 +27,24 @@ def disable_cli_paging(telnet_conn, read_delay=1):
     """
 
     # Execute the command
-    cmd = 'set terminal length 0\n'
+#    cmd = 'set terminal length 0\n'
+    cmd = 'terminal length 0\n'
     telnet_conn.write(cmd)
 
     # Read device output until one from a list of regular expressions
     # matches or until timeout
-    r = telnet_conn.expect(['Invalid command', '\%s' % OPER_PROMPT],
+    prompt = device['oper_prompt']
+    r = telnet_conn.expect(['Invalid command', '\%s' % prompt],
                            read_delay)
     if r[0] != 1:
         # Flush out the read buffer
-        telnet_conn.read_until(OPER_PROMPT, read_delay)
+        telnet_conn.read_until(prompt, read_delay)
         return False
     else:
         return True
 
 
-def enter_cli_cfg_mode(telnet_conn, read_delay=1):
+def enter_cli_cfg_mode(device, telnet_conn, read_delay=1):
     """
     Enter CLI configuration mode on a remote device.
     :param telnetlib.Telnet telnet_conn: an instance of TELNET client
@@ -71,10 +59,12 @@ def enter_cli_cfg_mode(telnet_conn, read_delay=1):
 
     # Read device output until one from a list of regular expressions
     # matches or until timeout
-    r = telnet_conn.expect(['Invalid command', ADMIN_PROMPT], read_delay)
+    admin_prompt = device['admin_prompt']
+    oper_prompt = device['oper_prompt']
+    r = telnet_conn.expect(['Invalid command', admin_prompt], read_delay)
     if r[0] != 1:
         # Flush out the read buffer
-        telnet_conn.read_until(OPER_PROMPT, read_delay)
+        telnet_conn.read_until(oper_prompt, read_delay)
         return False
     else:
         return True
@@ -109,7 +99,8 @@ def connect_telnet(device):
         # Login to device
         uname = device['username']
         if uname:
-            login_prompt = 'login:'
+            # login_prompt = 'login:'
+            login_prompt = device['login_prompt']
             response = telnet_client.read_until(login_prompt, timeout)
             if login_prompt not in response:
                 if(device['verbose']):
@@ -120,7 +111,8 @@ def connect_telnet(device):
 
         pswd = device['password']
         if pswd:
-            pswd_prompt = 'assword:'
+            # pswd_prompt = 'assword:'
+            pswd_prompt = device['password_prompt']
             response = telnet_client.read_until(pswd_prompt, timeout)
             if pswd_prompt not in response:
                 if(device['verbose']):
@@ -130,11 +122,12 @@ def connect_telnet(device):
             telnet_client.write('%s\n' % pswd)
 
         # Check if we got to initial operator prompt
-        oper_prompt = '\%s' % OPER_PROMPT
-        r = telnet_client.expect([oper_prompt], timeout)
+#        oper_prompt = '\%s' % OPER_PROMPT
+        admin_prompt = device['admin_prompt']
+        r = telnet_client.expect([admin_prompt], timeout)
         if(r[0] == -1):
             if(device['verbose']):
-                print("failed to get '%s' prompt" % oper_prompt)
+                print("failed to get '%s' prompt" % admin_prompt)
             disconnect_telnet(device, telnet_client)
             return None
 
@@ -177,8 +170,8 @@ def execute_command(device, cli_command, read_delay=1):
     telnet_conn = connect_telnet(device)
     if telnet_conn:
         # Turn off CLI paging and enter configuration mode
-        disable_cli_paging(telnet_conn, read_delay)
-        enter_cli_cfg_mode(telnet_conn, read_delay)
+        disable_cli_paging(device, telnet_conn, read_delay)
+#        enter_cli_cfg_mode(device, telnet_conn, read_delay)
 
         # Execute and wait for command completion,
         # then read result from the receive buffer
@@ -187,8 +180,12 @@ def execute_command(device, cli_command, read_delay=1):
         # Returns a tuple of three items: the index in the list of the
         # first regular expression that matches; the match object
         # returned; and the text read up till and including the match.
+        oper_prompt = "\%s" % device['oper_prompt']
+        admin_prompt = device['admin_prompt']
         dummy, match, text = \
-            telnet_conn.expect(['Invalid command', ADMIN_PROMPT], read_delay)
+            telnet_conn.expect(['Invalid command', oper_prompt, admin_prompt],
+                               read_delay)
+        print "%s/%s/%s" % (dummy, match, text)
         if match is None:
             output = "Failed to execute command"
         else:
@@ -206,7 +203,23 @@ def execute_command(device, cli_command, read_delay=1):
 
     return output
 
-if __name__ == '__main__':
+
+def main():
+    # Remote device TELNET session specific info
+    device = {
+        'ip_addr': '172.22.17.111',
+        'port': 23,
+        'timeout': 3,
+        'username': 'testuser',
+        'password': 'testpassword',
+        'login_prompt': 'sername:',
+        'password_prompt': 'assword:',
+        'oper_prompt': '$',
+        'admin_prompt': '#',
+        'secret': 'secret',
+        'verbose': True
+    }
+
     cmd_string = "show interfaces\n"
     print("\nCommand to be executed: %s" % cmd_string)
     output = execute_command(device, cmd_string, read_delay=1)
@@ -215,3 +228,7 @@ if __name__ == '__main__':
     print output
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     print("\n")
+
+
+if __name__ == '__main__':
+    main()

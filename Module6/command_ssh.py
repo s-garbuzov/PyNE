@@ -4,8 +4,9 @@
 
 Example of a script that executes a CLI command on a remote
 device over established SSH connection.
-CLI commands are device specific, so this script needs
-to be adapted to a concrete device.
+
+Administrator login options and CLI commands are device specific,
+thus this script needs to be adapted to a concrete device specifics.
 
 NOTES: Requires installation of the 'paramiko' Python package
           pip install paramiko
@@ -25,24 +26,11 @@ import socket
 # third-party modules
 import paramiko
 
-# Remote device SSH session specific info
-device = {
-    'ip_addr': '172.22.17.110',
-    'port': 830,
-    'timeout': 3,
-    'username': 'vyatta',
-    'password': 'vyatta',
-    'secret': 'secret',
-    'verbose': True
-}
 
-# The maximum amount of data to be received at once
-MAX_RCV_BUFFER = 1000
-
-
-def disable_cli_paging(remote_shell):
+def disable_cli_paging(device, remote_shell):
     """
     Disable CLI paging on a remote device.
+    :param dict device: dictionary containing target device information.
     :param paramiko.channel.Channel rsh: channel connected to a remote shell.
     :return: None
     """
@@ -53,12 +41,13 @@ def disable_cli_paging(remote_shell):
     time.sleep(1)
 
     # Flush out the receive buffer
-    remote_shell.recv(MAX_RCV_BUFFER)
+    remote_shell.recv(device['max_bytes'])
 
 
-def enter_cli_cfg_mode(remote_shell):
+def enter_cli_cfg_mode(device, remote_shell):
     """
     Enter CLI configuration mode on a remote device.
+    :param dict device: dictionary containing target device information.
     :param paramiko.channel.Channel rsh: channel connected to a remote shell.
     :return: None
     """
@@ -69,7 +58,7 @@ def enter_cli_cfg_mode(remote_shell):
     time.sleep(1)
 
     # Flush out the receive buffer
-    remote_shell.recv(MAX_RCV_BUFFER)
+    remote_shell.recv(device['max_bytes'])
 
 
 def connect_ssh(device):
@@ -147,17 +136,17 @@ def execute_command(device, cli_command, read_delay=1):
             # Start an interactive shell session on the remote SSH server
             # (read initial prompt data just to flush the receive buffer)
             remote_shell = ssh_conn.invoke_shell()
-            remote_shell.recv(MAX_RCV_BUFFER)
+            remote_shell.recv(device['max_bytes'])
 
             # Turn off CLI paging and enter configuration mode
-            disable_cli_paging(remote_shell)
-            enter_cli_cfg_mode(remote_shell)
+            disable_cli_paging(device, remote_shell)
+            enter_cli_cfg_mode(device, remote_shell)
 
             # Execute and wait for command completion,
             # then read result from the receive buffer
             remote_shell.send(cli_command)
             time.sleep(read_delay)
-            output = remote_shell.recv(MAX_RCV_BUFFER)
+            output = remote_shell.recv(device['max_bytes'])
             if((device['verbose'])):
                 print("CLI command %r has been executed" % cli_command)
         except (paramiko.SSHException) as e:
@@ -175,7 +164,19 @@ def execute_command(device, cli_command, read_delay=1):
     return output
 
 
-if __name__ == '__main__':
+def main():
+    # Remote device SSH session specific info
+    device = {
+        'ip_addr': '172.22.17.110',
+        'port': 830,
+        'timeout': 3,
+        'username': 'vyatta',
+        'password': 'vyatta',
+        'secret': 'secret',
+        'max_bytes': 1000,  # The maximum amount of data to be received at once
+        'verbose': True
+    }
+
     cmd_string = "show interfaces\n"
     print("\nCommand to be executed: %s" % cmd_string)
     output = execute_command(device, cmd_string, read_delay=1)
@@ -184,3 +185,7 @@ if __name__ == '__main__':
     print output
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     print("\n")
+
+
+if __name__ == '__main__':
+    main()
