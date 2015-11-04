@@ -6,23 +6,30 @@
 #     adds the IP addresses to a list
 #     prints each member of the list to standard out
 
-# instantiate switch list variable
-switch_list = []
-# define the name of the file that contains switch list information
-switch_list_filename = 'switch-list.txt'
 
-# open switch list source file as read-only
-switch_info = open(switch_list_filename, 'r')
+def get_switch_list():
+    switch_list = []
+    switch_list_filename = 'switch-list.txt'
+    switch_list_file_object = open(switch_list_filename, 'r')
 
-# append each IP address in the switch list file to the switch_list list variable
-for ip_address in switch_info:
-	ip_address = ip_address.rstrip()
-	switch_list.append(ip_address)
+    for ip_address in switch_list_file_object:
+        ip_address = ip_address.rstrip()
+        switch_list.append(ip_address)
 
-# close the file with the switch IP address information
-switch_info.close()
+    switch_list_file_object.close()
 
-# print out the values in the switch_list list to verify you successfully read them
-for ip_address in switch_list:
-	print ip_address
+    return switch_list
 
+
+def print_switch_list(switch_list):
+    for ip_address in switch_list:
+        print ip_address
+
+
+def main():
+    switch_list = get_switch_list()
+    print_switch_list(switch_list)
+
+
+if __name__ == '__main__':
+    main ()
