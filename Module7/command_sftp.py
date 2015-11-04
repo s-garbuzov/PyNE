@@ -23,22 +23,9 @@ import os
 from sftp_session import SFTPSession
 
 
-def main():
-    # Remote device SFTP session specific info
-    device = {
-        'ip_addr': '172.22.17.110',
-        'port': 830,
-        'timeout': 3,
-        'username': 'vyatta',
-        'password': 'vyatta',
-        'secret': 'secret',
-        'max_bytes': 9000,  # The maximum amount of data to be received at once
-        'verbose': True
-    }
-
-    file_name = 'auth.log'
-    remote_path = "/var/log/%s" % file_name
-    local_path = "/tmp/mylogs1/%s" % file_name
+def get_file(device, remote_path, local_path):
+    """Copy a remote file ('remote_path') from SFTP server running
+    on the 'device' to the 'local_path' on this machine."""
 
     # Make sure that the local placeholder for the copy of the remote file
     # does already exist
@@ -49,28 +36,36 @@ def main():
         with open(local_path, "w") as f:  # create a file in the directory
             f.close()
 
-    # Establish SFTP session with the device
-    sftp = SFTPSession(**device)
-    if(sftp.open()):
-        if(device['verbose']):
-            print ("SFTP session to %s:%s started" %
-                   (device['ip_addr'], device['port']))
+    success = False
+    # Establish SFTP session with device
+    sftp = SFTPSession(**device)   # Establish SFTP session with the device
+    if(sftp.open()):               # Check if established
+        success = sftp.get(remote_path, local_path)  # Execute command
+        sftp.close()               # Close SFTP session
 
-        # Execute SFTP 'get' command and display execution result
-        success = sftp.get(remote_path, local_path, device['verbose'])
-        if success:
-            print("Successfully loaded '%s' file to '%s'" %
-                  (remote_path, local_path))
-        else:
-            print("!!!Error, failed to load '%s' file" % remote_path)
+    return success
 
-        sftp.close()
-        if(device['verbose']):
-            print ("SFTP session to %s:%s ended" %
-                   (device['ip_addr'], device['port']))
+
+def main():
+    # Remote device SFTP session specific info
+    device = {
+        'ip_addr': '172.22.17.110',
+        'port': 830,
+        'timeout': 3,
+        'username': 'vyatta',
+        'password': 'vyatta',
+        'verbose': True
+    }
+
+    file_name = 'auth.log'
+    remote_path = "/var/log/%s" % file_name
+    local_path = "/tmp/mylogs1/%s" % file_name
+    success = get_file(device, remote_path, local_path)
+    if success:
+        print("Successfully loaded '%s' file to '%s'" %
+              (remote_path, local_path))
     else:
-        print("!!!Error, SFTP session to %s:%s has failed" %
-              (device['ip_addr'], device['port']))
+        print("Failed to load '%s' file" % remote_path)
 
 
 if __name__ == '__main__':
