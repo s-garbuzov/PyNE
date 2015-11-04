@@ -17,6 +17,9 @@ command_sftp.py
 
 """
 
+# built-in modules
+import os
+
 from sftp_session import SFTPSession
 
 
@@ -35,7 +38,16 @@ def main():
 
     file_name = 'auth.log'
     remote_path = "/var/log/%s" % file_name
-    local_path = "/tmp/mylogs/%s" % file_name
+    local_path = "/tmp/mylogs1/%s" % file_name
+
+    # Make sure that the local placeholder for the copy of the remote file
+    # does already exist
+    basedir = os.path.dirname(local_path)
+    if not os.path.exists(basedir):
+        os.makedirs(basedir)              # create a directory for the file
+    if not os.path.exists(local_path):
+        with open(local_path, "w") as f:  # create a file in the directory
+            f.close()
 
     # Establish SFTP session with the device
     sftp = SFTPSession(**device)
