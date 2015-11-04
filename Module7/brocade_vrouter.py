@@ -46,6 +46,7 @@ class BrocadeVRouter(NetworkDevice):
         if(self._channel is not None):
             return self._channel
 
+        channel = None
         if(self.channel == 'ssh'):
             channel = SSHChannel(self.ip_addr, self.port,
                                  self.username, self.password,
