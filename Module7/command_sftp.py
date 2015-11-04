@@ -20,17 +20,6 @@ command_sftp.py
 from sftp_session import SFTPSession
 
 
-def transfer_progress(filename, transfered, total):
-    """Callback function that accepts name of the file being
-    transfered, the number of bytes transferred so far, the
-    total bytes to be transferred and prints current transfer
-    progress information.
-    """
-    if(transfered < total):
-        print("Transfer of %r is at %d/%d bytes (%.2f%%)" %
-              (filename, transfered, total, 100. * transfered / total))
-
-
 def main():
     # Remote device SFTP session specific info
     device = {
