@@ -57,7 +57,7 @@ class CiscoIOS(NetworkDevice):
             channel = TELNETChannel(self.ip_addr, self.port,
                                     self.username, self.password,
                                     self.login_prompt, self.password_prompt,
-                                    self.oper_prompt, self.admin_prompt,
+                                    self.oper_prompt, self.config_prompt,
                                     self.timeout, self.verbose)
         else:
             assert False, 'unexpected attribute value: %s' % self.channel
@@ -75,15 +75,24 @@ class CiscoIOS(NetworkDevice):
         cmd = 'terminal length 0\n'
         self.execute_command(cmd, 0)
 
+    def check_cfg_mode(self):
+        assert(self._channel is not None)
+        cmd = '\n'
+        output = self.execute_command(cmd, 0)
+        if(self.config_prompt in output):
+            return True
+        else:
+            return False
+
     def enter_cfg_mode(self):
         assert(self._channel is not None)
-        cmd = "configure\n"
-        self.execute_command(cmd, 0)
+        if not self.check_cfg_mode():
+            cmd = "configure\n"
+            self.execute_command(cmd, 0)
 
     def execute_command(self, command, read_delay=1):
         assert(self._channel is not None)
         self._channel.send(command)
         time.sleep(read_delay)  # wait command to complete
         output = self._channel.recv()
-#        print output
         return output

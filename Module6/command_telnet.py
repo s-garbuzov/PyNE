@@ -118,7 +118,6 @@ def connect_telnet(device):
                 err_msg = ("Failed to get expected '%s' login prompt" %
                            login_prompt)
                 raise ValueError(err_msg)
-                return None
             telnet_client.write('%s\n' % uname)
 
         pswd = device['password']
@@ -130,7 +129,6 @@ def connect_telnet(device):
                 err_msg = ("Failed to get expected '%s' password prompt" %
                            pswd_prompt)
                 raise ValueError(err_msg)
-                return None
             telnet_client.write('%s\n' % pswd)
 
         # Check if we got to the console prompt
@@ -142,7 +140,6 @@ def connect_telnet(device):
             disconnect_telnet(device, telnet_client)
             err_msg = ("Login failed (uname=%s, pswd=%s)" % (uname, pswd))
             raise ValueError(err_msg)
-            return None
 
         if(device['verbose']):
             print("Successfully logged on to %s:%s" %

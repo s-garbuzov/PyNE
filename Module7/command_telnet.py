@@ -19,59 +19,43 @@ from cisco_ios import CiscoIOS
 def main():
     # Remote device TELNET session specific info
     device = {
+        'channel': 'telnet',
         'ip_addr': '172.22.17.111',
         'port': 23,
-        'channel': 'telnet',
         'timeout': 3,
         'username': 'testuser',
         'password': 'testpassword',
         'login_prompt': 'sername:',
         'password_prompt': 'assword:',
         'oper_prompt': '$',
-        'admin_prompt': '#',
+        'config_prompt': '#',
         'secret': 'secret',
         'verbose': True
     }
 
     cmd_string = "show interfaces\n"
     print("\nCommand to be executed: %s" % cmd_string)
+    output = None
 
-    # Allocate object representing the device
-    obj = CiscoIOS(**device)
-
-    # Connect to device
-    obj.connect()
-    if(obj.connected()):
-        if(device['verbose']):
-            print("TELNET connection to %s:%s has been established" %
-                  (device['ip_addr'], device['port']))
-
-        # Disable paging
-        obj.disable_paging()
-
-        # Enter configuration mode
-        # obj.enter_cfg_mode()
+    obj = CiscoIOS(**device)  # Allocate object representing the device
+    obj.connect()             # Connect to device
+    if(obj.connected()):      # Check if connected
+        obj.disable_paging()  # Disable paging
+        obj.enter_cfg_mode()  # Enter configuration mode
 
         # Execute command and get the result
         output = obj.execute_command(cmd_string)
-        if((device['verbose'])):
-            print("CLI command %r has been executed" % cmd_string)
 
-        # Disconnect from device (close management session)
-        obj.disconnect()
-        if(device['verbose']):
-            print("TELNET connection to %s:%s has been closed" %
-                  (device['ip_addr'], device['port']))
+        obj.disconnect()      # Disconnect from device
 
-        # Display the command execution result
+    if(output is not None):
         print("\nCommand execution result:\n")
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         print output
         print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         print("\n")
     else:
-        print("!!!Error, failed to connect to device %s:%s" %
-              (device['ip_addr'], device['port']))
+        print("Failed to execute command")
 
 
 if __name__ == '__main__':
