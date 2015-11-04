@@ -28,11 +28,9 @@ import paramiko
 def connect_ssh(device):
     """
     Establish SSH connection to a remote device.
-
-    :param dict device: dictionary containing information for establishing
-                        SSH session to a target device.
+    :param dict device: dictionary containing information about target device.
     :return: an instance of paramiko.SSHClient class connected
-             to remote SSH server on success, None otherwise.
+        to the device on success, None on failure.
     """
 
     try:
@@ -43,6 +41,9 @@ def connect_ssh(device):
         # SSH configuration (make sure it is okay with your security
         # policy requirements)
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        if(device['verbose']):
+            print("Connecting to %s:%s" % (device['ip_addr'], device['port']))
 
         # o 'look_for_keys' is set to False to disable searching
         #   for discoverable private key files in '~/.ssh/'
@@ -55,7 +56,7 @@ def connect_ssh(device):
                            look_for_keys=False, allow_agent=False,
                            timeout=device['timeout'])
         if(device['verbose']):
-            print("SSH connection to %s:%s has been established" %
+            print("Connection to %s:%s has been established" %
                   (device['ip_addr'], device['port']))
         return ssh_client
     except (paramiko.BadHostKeyException,
@@ -66,15 +67,16 @@ def connect_ssh(device):
         return None
 
 
-def disconnect_ssh(device, ssh_client):
-    """Close active SSH connection to a remote device.
-    :param paramiko.SSHClient rconn: object instance connected
-             to a remote SSH server.
+def disconnect_ssh(device, ssh_conn):
+    """
+    Close active SSH connection to a remote device.
+    :param paramiko.SSHClient ssh_conn: object instance connected
+        to a remote SSH server.
     :return: None
     """
 
     try:
-        ssh_client.close()
+        ssh_conn.close()
         if(device['verbose']):
             print("SSH connection to %s:%s has been closed" %
                   (device['ip_addr'], device['port']))
@@ -135,8 +137,6 @@ def get_file(device, remote_path, local_path):
             disconnect_ssh(device, ssh_conn)
             if(device['verbose']):
                 print ("SFTP session ended")
-    else:
-        print("!!!Error: failed to connect to device")
 
     return success
 
@@ -161,7 +161,7 @@ def main():
         print("Successfully loaded '%s' file to '%s'" %
               (remote_path, local_path))
     else:
-        print("!!!Error, failed to load '%s' file" % remote_path)
+        print("Failed to load '%s' file" % remote_path)
 
 if __name__ == '__main__':
     main()
