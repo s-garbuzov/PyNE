@@ -27,48 +27,67 @@ import socket
 import paramiko
 
 
-def disable_cli_paging(device, remote_shell):
+def disable_cli_paging(device, rsh):
     """
     Disable CLI paging on a remote device.
-    :param dict device: dictionary containing target device information.
+    :param dict device: dictionary containing information about target device.
     :param paramiko.channel.Channel rsh: channel connected to a remote shell.
     :return: None
     """
 
     cmd = 'set terminal length 0\n'
     # Execute the command (wait for command to complete)
-    remote_shell.send(cmd)
+    rsh.send(cmd)
     time.sleep(1)
 
     # Flush out the receive buffer
-    remote_shell.recv(device['max_bytes'])
+    rsh.recv(device['max_bytes'])
 
 
-def enter_cli_cfg_mode(device, remote_shell):
+def check_config_mode(device, rsh):
+    """
+    Check if CLI on the device is in configuration mode.
+    :param dict device: dictionary containing information about target device.
+    :param paramiko.channel.Channel rsh: channel connected to a remote shell.
+    :return: True if CLI is in configuration mode, False otherwise
+    Returns a boolean
+    """
+    cmd = '\n'
+    rsh.send(cmd)
+    output = rsh.recv(device['max_bytes'])
+    config_prompt = device['config_prompt']
+    if(config_prompt in output):
+        return True
+    else:
+        return False
+
+
+def enter_cli_cfg_mode(device, rsh):
     """
     Enter CLI configuration mode on a remote device.
-    :param dict device: dictionary containing target device information.
+    :param dict device: dictionary containing information about target device.
     :param paramiko.channel.Channel rsh: channel connected to a remote shell.
     :return: None
     """
 
+    if(check_config_mode(device, rsh) is True):
+        return
+
     cmd = "configure\n"
     # Execute the command (wait for command to complete)
-    remote_shell.send(cmd)
+    rsh.send(cmd)
     time.sleep(1)
 
     # Flush out the receive buffer
-    remote_shell.recv(device['max_bytes'])
+    rsh.recv(device['max_bytes'])
 
 
 def connect_ssh(device):
     """
     Establish SSH connection to a remote device.
-
-    :param dict device: dictionary containing information for establishing
-                        SSH session to a target device.
+    :param dict device: dictionary containing information about target device.
     :return: an instance of paramiko.SSHClient class connected
-             to remote SSH server on success, None otherwise.
+        to the device on success, None on failure.
     """
 
     try:
@@ -79,6 +98,9 @@ def connect_ssh(device):
         # SSH configuration (make sure it is okay with your security
         # policy requirements)
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        if(device['verbose']):
+            print("Connecting to %s:%s" % (device['ip_addr'], device['port']))
 
         # o 'look_for_keys' is set to False to disable searching
         #   for discoverable private key files in '~/.ssh/'
@@ -91,7 +113,7 @@ def connect_ssh(device):
                            look_for_keys=False, allow_agent=False,
                            timeout=device['timeout'])
         if(device['verbose']):
-            print("SSH connection to %s:%s has been established" %
+            print("Connection to %s:%s has been established" %
                   (device['ip_addr'], device['port']))
         return ssh_client
     except (paramiko.BadHostKeyException,
@@ -102,16 +124,17 @@ def connect_ssh(device):
         return None
 
 
-def disconnect_ssh(device, ssh_client):
-    """Close active SSH connection to a remote device.
-    :param paramiko.SSHClient rconn: object instance connected
+def disconnect_ssh(device, ssh_conn):
+    """
+    Close active SSH connection to a remote device.
+    :param paramiko.SSHClient ssh_conn: object instance connected
         to a remote SSH server.
     :return: None
     """
     try:
-        ssh_client.close()
+        ssh_conn.close()
         if(device['verbose']):
-            print("SSH connection to %s:%s has been closed" %
+            print("Connection to %s:%s has been closed" %
                   (device['ip_addr'], device['port']))
     except (Exception) as e:
         print "!!!Error, %s " % e
@@ -129,9 +152,9 @@ def execute_command(device, cli_command, read_delay=1):
     assert(isinstance(device, dict))
     output = None
 
-    # Connect to remote SSH server running on the device
+    # Connect to device
     ssh_conn = connect_ssh(device)
-    if ssh_conn:
+    if(ssh_conn is not None):
         try:
             # Start an interactive shell session on the remote SSH server
             # (read initial prompt data just to flush the receive buffer)
@@ -150,16 +173,10 @@ def execute_command(device, cli_command, read_delay=1):
             if((device['verbose'])):
                 print("CLI command %r has been executed" % cli_command)
         except (paramiko.SSHException) as e:
-            output = "Failed to execute command"
             print("!!!Error: %s\n" % e)
         finally:
-            # Terminate SSH session
+            # Close connection
             disconnect_ssh(device, ssh_conn)
-    else:
-        output = "Failed to execute command"
-        if(device['verbose']):
-            print("SSH connection to %s:%s has failed\n" %
-                  (device['ip_addr'], device['port']))
 
     return output
 
@@ -172,6 +189,8 @@ def main():
         'timeout': 3,
         'username': 'vyatta',
         'password': 'vyatta',
+        'oper_prompt': '$',
+        'config_prompt': '#',
         'secret': 'secret',
         'max_bytes': 1000,  # The maximum amount of data to be received at once
         'verbose': True
@@ -180,11 +199,14 @@ def main():
     cmd_string = "show interfaces\n"
     print("\nCommand to be executed: %s" % cmd_string)
     output = execute_command(device, cmd_string, read_delay=1)
-    print("\nCommand execution result:\n")
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    print output
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print("\n")
+    if(output is not None):
+        print("\nCommand execution result:\n")
+        print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        print output
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        print("\n")
+    else:
+        print("Failed to execute command")
 
 
 if __name__ == '__main__':
