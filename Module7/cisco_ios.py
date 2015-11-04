@@ -11,15 +11,15 @@ from ssh_channel import SSHChannel
 
 # Subclass of the 'NetworkDevice' base class
 class CiscoIOS(NetworkDevice):
-    """
-    Class representing an instance of a Cisco network device running IOS.
-    Defines device specific methods.
-    """
+    """Cisco IOS device with device specific methods."""
 
     def __init__(self, **kwargs):
+        """Allocate and return a new instance object."""
+
         # Invoke the superclass initialization method to initialize
         # inherited attributes
         NetworkDevice.__init__(self, 'Cisco', 'ios')
+        # Initialize this class attributes
         self._channel = None
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -73,7 +73,7 @@ class CiscoIOS(NetworkDevice):
     def disable_paging(self):
         assert(self._channel is not None)
         cmd = 'terminal length 0\n'
-        self.execute_command(cmd, 0)
+        self.execute_command(cmd, 1)
 
     def check_cfg_mode(self):
         assert(self._channel is not None)
@@ -87,8 +87,8 @@ class CiscoIOS(NetworkDevice):
     def enter_cfg_mode(self):
         assert(self._channel is not None)
         if not self.check_cfg_mode():
-            cmd = "configure\n"
-            self.execute_command(cmd, 0)
+            cmd = "configure terminal\n"
+            self.execute_command(cmd, 1)
 
     def execute_command(self, command, read_delay=1):
         assert(self._channel is not None)

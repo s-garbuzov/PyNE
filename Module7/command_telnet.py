@@ -45,6 +45,8 @@ def main():
 
         # Execute command and get the result
         output = obj.execute_command(cmd_string)
+        if(device['verbose']):
+            print("CLI command '%r' has been executed" % cmd_string)
 
         obj.disconnect()      # Disconnect from device
 

@@ -19,12 +19,14 @@ from brocade_vrouter import BrocadeVRouter
 def main():
     # Remote device SSH session specific info
     device = {
+        'channel': 'ssh',
         'ip_addr': '172.22.17.110',
         'port': 830,
-        'channel': 'ssh',
         'timeout': 3,
         'username': 'vyatta',
         'password': 'vyatta',
+        'oper_prompt': '$',
+        'config_prompt': '#',
         'secret': 'secret',
         'max_bytes': 1000,  # The maximum amount of data to be received at once
         'verbose': True
@@ -33,42 +35,27 @@ def main():
     cmd_string = "show interfaces\n"
     print("\nCommand to be executed: %s" % cmd_string)
 
-    # Allocate object representing the device
-    obj = BrocadeVRouter(**device)
-
-    # Connect to device
-    obj.connect()
-    if(obj.connected()):
-        if(device['verbose']):
-            print("SSH connection to %s:%s has been established" %
-                  (device['ip_addr'], device['port']))
-
-        # Disable paging
-        obj.disable_paging()
-
-        # Enter configuration mode
-        obj.enter_cfg_mode()
+    obj = BrocadeVRouter(**device)  # Allocate object representing the device
+    obj.connect()                   # Connect to device
+    if(obj.connected()):            # Check if connected
+        obj.disable_paging()        # Disable paging
+        obj.enter_cfg_mode()        # Enter configuration mode
 
         # Execute command and get the result
         output = obj.execute_command(cmd_string)
-        if((device['verbose'])):
-            print("CLI command %r has been executed" % cmd_string)
-
-        # Disconnect from device (close management session)
-        obj.disconnect()
         if(device['verbose']):
-            print("SSH connection to %s:%s has been closed" %
-                  (device['ip_addr'], device['port']))
+            print("CLI command '%r' has been executed" % cmd_string)
 
-        # Display the command execution result
+        obj.disconnect()            # Disconnect from device
+
+    if(output is not None):
         print("\nCommand execution result:\n")
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         print output
         print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         print("\n")
     else:
-        print("!!!Error, failed to connect to device %s:%s" %
-              (device['ip_addr'], device['port']))
+        print("Failed to execute command")
 
 
 if __name__ == '__main__':

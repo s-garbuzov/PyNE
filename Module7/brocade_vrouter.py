@@ -12,11 +12,15 @@ from telnet_channel import TELNETChannel
 
 
 class BrocadeVRouter(NetworkDevice):
-    """Brocade vRouter device."""
+    """Brocade vRouter device with device specific methods."""
 
     def __init__(self, **kwargs):
         """Allocate and return a new instance object."""
+
+        # Invoke the superclass initialization method
+        # to initialize inherited attributes
         NetworkDevice.__init__(self, 'Brocade', 'Linux')
+        # Initialize this class attributes
         self._channel = None
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -56,7 +60,7 @@ class BrocadeVRouter(NetworkDevice):
             channel = TELNETChannel(self.ip_addr, self.port,
                                     self.username, self.password,
                                     self.login_prompt, self.password_prompt,
-                                    self.oper_prompt, self.admin_prompt,
+                                    self.oper_prompt, self.config_prompt,
                                     self.timeout, self.verbose)
         else:
             assert False, 'unexpected attribute value: %s' % self.channel
@@ -72,12 +76,21 @@ class BrocadeVRouter(NetworkDevice):
     def disable_paging(self):
         assert(self._channel is not None)
         cmd = 'set terminal length 0\n'
-        self.execute_command(cmd, 0)
+        self.execute_command(cmd, 1)
+
+    def check_cfg_mode(self):
+        assert(self._channel is not None)
+        cmd = '\n'
+        output = self.execute_command(cmd, 0)
+        if(self.config_prompt in output):
+            return True
+        else:
+            return False
 
     def enter_cfg_mode(self):
         assert(self._channel is not None)
         cmd = "configure\n"
-        self.execute_command(cmd, 0)
+        self.execute_command(cmd, 1)
 
     def execute_command(self, command, read_delay=1):
         assert(self._channel is not None)

@@ -1,3 +1,8 @@
+"""
+Class that handles SSH connection to a network device.
+Defines methods that are generally applicable to different platforms.
+"""
+
 
 # built-in modules
 import socket
@@ -27,16 +32,22 @@ class SSHChannel(object):
             return self._channel
 
         try:
-            rconn = paramiko.SSHClient()
-            rconn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            rconn.connect(hostname=self.ip_addr, port=self.port,
-                          username=self.admin_name, password=self.admin_pswd,
-                          look_for_keys=False, allow_agent=False,
-                          timeout=self.timeout)
-            rsh = rconn.invoke_shell()
+            ssh_client = paramiko.SSHClient()
+            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            if(self.verbose):
+                print("Connecting to %s:%s" % (self.ip_addr, self.port))
+            ssh_client.connect(hostname=self.ip_addr, port=self.port,
+                               username=self.admin_name,
+                               password=self.admin_pswd,
+                               look_for_keys=False, allow_agent=False,
+                               timeout=self.timeout)
+            rsh = ssh_client.invoke_shell()
             rsh.recv(self._max_bytes)
             self._remote_shell = rsh
-            self._channel = rconn
+            self._channel = ssh_client
+            if(self.verbose):
+                print("Connection to %s:%s has been established" %
+                      (self.ip_addr, self.port))
             return self._channel
         except (paramiko.BadHostKeyException,
                 paramiko.AuthenticationException,
@@ -50,6 +61,9 @@ class SSHChannel(object):
         if self._channel is not None:
             try:
                 self._channel.close()
+                if(self.verbose):
+                    print("Connection to %s:%s has been closed" %
+                          (self.ip_addr, self.port))
             except (Exception) as e:
                 print "!!!Error, %s " % e
 
