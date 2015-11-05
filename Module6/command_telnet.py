@@ -52,7 +52,7 @@ def check_config_mode(device, telnet_conn):
     cmd = '\n'
     telnet_conn.write(cmd)
     config_prompt = device['config_prompt']
-    idx, dummy, dummy = telnet_conn.expect([config_prompt])
+    idx, dummy, dummy = telnet_conn.expect([config_prompt], timeout=1)
     if(idx == 0):
         return True
     else:

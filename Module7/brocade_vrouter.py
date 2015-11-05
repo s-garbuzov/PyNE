@@ -2,9 +2,6 @@
 BrocadeVRouter class (subclass of the NetworkDevice base class)
 """
 
-# built-in modules
-import time
-
 # this project local modules
 from network_device import NetworkDevice
 from ssh_channel import SSHChannel
@@ -25,17 +22,14 @@ class BrocadeVRouter(NetworkDevice):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def to_str(self):
+        return "%s %s %s:%s" % (self.get_vendor(), self.get_os_type(),
+                                self.ip_addr, self.port)
+
     def get_version(self):
-        time.sleep(0)
         status = True
         output = "3.2.1R6"
         return status, output
-
-    def get_vendor(self):
-        return "Brocade"
-
-    def get_os_type(self):
-        return "Linux"
 
     def get_ipaddr(self):
         ip_addr = None
@@ -81,7 +75,7 @@ class BrocadeVRouter(NetworkDevice):
     def check_cfg_mode(self):
         assert(self._channel is not None)
         cmd = '\n'
-        output = self.execute_command(cmd, 0)
+        output = self.execute_command(cmd, 1)
         if(self.config_prompt in output):
             return True
         else:
@@ -95,6 +89,5 @@ class BrocadeVRouter(NetworkDevice):
     def execute_command(self, command, read_delay=1):
         assert(self._channel is not None)
         self._channel.send(command)
-        time.sleep(read_delay)  # wait command to complete
-        output = self._channel.recv()
+        output = self._channel.recv(read_delay)
         return output

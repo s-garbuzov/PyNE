@@ -34,6 +34,7 @@ def main():
 
     cmd_string = "show interfaces\n"
     print("\nCommand to be executed: %s" % cmd_string)
+    output = None
 
     obj = BrocadeVRouter(**device)  # Allocate object representing the device
     obj.connect()                   # Connect to device
@@ -48,8 +49,9 @@ def main():
 
         obj.disconnect()            # Disconnect from device
 
+    print("\n[%s]" % obj.to_str())
     if(output is not None):
-        print("\nCommand execution result:\n")
+        print("Command execution result:\n")
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         print output
         print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")

@@ -6,6 +6,7 @@ Defines methods that are generally applicable to different platforms.
 
 # built-in modules
 import socket
+import time
 
 # third-party modules
 import paramiko
@@ -15,11 +16,11 @@ class SSHChannel(object):
     """SSH connection to a remote device."""
     def __init__(self, ip_addr, port,
                  admin_name, admin_pswd,
-                 max_rcv_buffer=1000,
+                 max_bytes=1000,
                  timeout=None, verbose=False):
         self._channel = None
         self._remote_shell = None
-        self._max_bytes = max_rcv_buffer
+        self._max_bytes = max_bytes
         self.ip_addr = ip_addr
         self.port = port
         self.admin_name = admin_name
@@ -71,6 +72,7 @@ class SSHChannel(object):
         assert(self._remote_shell is not None)
         self._remote_shell.send(data)
 
-    def recv(self):
+    def recv(self, read_delay):
         assert(self._remote_shell is not None)
+        time.sleep(read_delay)
         return self._remote_shell.recv(self._max_bytes)

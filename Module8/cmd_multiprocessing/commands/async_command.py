@@ -23,7 +23,7 @@ from cmd_multiprocessing.common.utils import cfg_load
 from cmd_multiprocessing.devices.device_factory import DeviceFactory
 
 
-def execute_command(device, cli_command, read_delay, msg_queue):
+def execute_command(device, cmd_string, read_delay, msg_queue):
     """
     Execute a CLI command on a remote device over established
     management channel.
@@ -31,41 +31,42 @@ def execute_command(device, cli_command, read_delay, msg_queue):
     submitted process.
     :param dict device: dictionary containing information for establishing
         management session to a target device.
-    :param str cli_command: CLI command to be executed.
+    :param str cmd_string: CLI command to be executed.
     :param int read_delay: time to wait for the CLI command to complete.
     :return: output of the command on success, error message otherwise.
     """
 
+    output = None
+
     # Allocate object representing the device
     obj = DeviceFactory.create(device)
+    obj.connect()                   # Connect to device
+    if(obj.connected()):            # Check if connected
+        obj.disable_paging()        # Disable paging
+        obj.enter_cfg_mode()        # Enter configuration mode
 
-    # Connect to device (initiate management session)
-    obj.connect()
+        # Execute command and get the result
+        output = obj.execute_command(cmd_string)
+        if((device['verbose'])):
+            print("[%s] CLI command %r has been executed" %
+                  (obj.to_str(), cmd_string))
 
-    # Execute command on the device and get the result
-    obj.disable_paging()
-    obj.enter_cfg_mode()
-    output = obj.execute_command("show interfaces\n")
-
-    # Disconnect from device (close management session)
-    obj.disconnect()
+        obj.disconnect()            # Disconnect from device
+    else:
+        output = "Failed to connect"
 
     # Return the result
-    msg_queue.put("[%s %s %s] %s" %
-                  (obj.get_vendor(), obj.get_os_type(),
-                   obj.get_ipaddr(), output))
+    msg_queue.put("[%s] %s" % (obj.to_str(), output))
 
 
 def show_results(results):
     """Display results of a command execution collected from all devices"""
 
-#    print("\n")
-#    print("Results:\n")
     for result in results:
         print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
         print("%s" % result)
         print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-#    print("\n")
+        print "\n"
 
 
 def dispatch_command(cfg_file, cmd_string, read_delay=1):

@@ -6,65 +6,100 @@
 #    Following configuration parameters have to be provided
 #    on a per device basis:
 #
-#    ip_addr     - IP address of the device
-#    port        - TCP/UDP destination port number on the device
-#    channel     - type of communication channel ('ssh' or 'telnet')
-#    device_type - Type of device (manufacturer and OS type)
-#    admin_name  - administrator user name on the device
-#    admin_pswd  - administrator user password on the device
-#    timeout     - max connectivity timeout
-#    verbose     - enable execution trace logging (debugging)
+#    device_type     - Type of device (manufacturer and OS type)
+#    channel         - type of communication channel ('ssh' or 'telnet')
+#    ip_addr         - IP address of the device
+#    port            - TCP/UDP destination port number on the device
+#    timeout         - max connectivity timeout
+#    username        - administrator user name on the device
+#    password        - administrator user password on the device
+#    login_prompt    - username login prompt
+#    password_prompt - password login prompt
+#    oper_prompt     - operator mode CLI prompt
+#    config_prompt   - configuration mode CLI prompt
+#    secret          - secret key 
+#    max_bytes       - the maximum amount of data to be received at once
+#    verbose         - enable execution trace logging (debugging)
 #
 #    Configuration example for a device entry:
 #
-#    ip_addr: 192.0.2.168
+#    device_type: "cisco_ios"
+#    channel: "ssh"
+#    ip_addr: "192.0.2.168"
 #    port: 22
-#    channel: 'ssh'
-#    device_type: 'cisco_ios'
-#    admin_name: "name"
-#    admin_pswd: "password"
 #    timeout: 5
+#    username: "adminname"
+#    password: "adminpassword"
+#    login_prompt: "sername:"
+#    password_prompt: "assword:"
+#    oper_prompt: "$"
+#    config_prompt: "#"
+#    secret: "adminsecret"
+#    max_bytes: 1000
 #    verbose: True
 #
 ##############################################################################
 
 # Device 1
-- ip_addr: "172.22.17.110"
+- device_type: "brocade_vrouter"
+  channel: "ssh"
+  ip_addr: "172.22.17.110"
   port: 830
-  channel: 'ssh'
-  device_type: 'brocade_vrouter'
-  admin_name: 'vyatta'
-  admin_pswd: 'vyatta'
   timeout: 3
+  username: "vyatta"
+  password: "vyatta"
+  login_prompt: "sername:"
+  password_prompt: "assword:"
+  oper_prompt: "$"
+  config_prompt: "#"
+  secret: "testsecret"
+  max_bytes: 1000
   verbose: True
 
 # Device 2
-- ip_addr: "172.22.17.110"
+- device_type: "brocade_vrouter"
+  channel: "telnet"
+  ip_addr: "172.22.17.110"
   port: 23
-  channel: 'telnet'
-  device_type: 'brocade_vrouter'
-  admin_name: 'vyatta'
-  admin_pswd: 'vyatta'
   timeout: 3
-  verbose: False
+  username: "vyatta"
+  password: "vyatta"
+  login_prompt: "login:"
+  password_prompt: "assword:"
+  oper_prompt: "$"
+  config_prompt: "#"
+  secret: "testsecret"
+  max_bytes: 1000
+  verbose: True
 
 # Device 3
-- ip_addr: '10.254.8.12'
-  port: 22
-  channel: 'ssh'
-  device_type: 'cisco_eos'
-  admin_name: 'test_user2'
-  admin_pswd: 'test_password2'
-  timeout: 7
-  verbose: False
+- device_type: "cisco_ios"
+  channel: "telnet"
+  ip_addr: "172.22.17.111"
+  port: 23
+  timeout: 3
+  username: "testuser"
+  password: "testpassword"
+  login_prompt: "sername:"
+  password_prompt: "assword:"
+  oper_prompt: "$"
+  config_prompt: "#"
+  secret: "testsecret"
+  max_bytes: 1000
+  verbose: True
 
 # Device 4
-- ip_addr: '10.254.8.17'
+- device_type: "cisco_xr"
+  channel: "ssh"
+  ip_addr: '10.254.8.17'
   port: 22
-  channel: 'ssh'
-  device_type: 'cisco_xr'
-  admin_name: 'test_user3'
-  admin_pswd: 'test_password3'
   timeout: 7
-  verbose: False
-
+  username: "testuser"
+  password: "testpassword"
+  login_prompt: "sername:"
+  password_prompt: "assword:"
+  oper_prompt: "$"
+  config_prompt: "#"
+  secret: "testsecret"
+  max_bytes: 1000
+  verbose: True

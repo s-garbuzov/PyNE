@@ -35,7 +35,7 @@ class TELNETChannel(object):
             telnet_client = telnetlib.Telnet()
 
             # uncomment following line to enable 'telnetlib' debug tracing
-            # rconn.set_debuglevel(1)
+            # telnet_client.set_debuglevel(1)
 
             # Connect to device
             if(self.verbose):
@@ -97,10 +97,11 @@ class TELNETChannel(object):
         assert(self._channel is not None)
         self._channel.write(data)
 
-    def recv(self, timeout=1):
+    def recv(self, read_delay):
         assert(self._channel is not None)
-        oper_prompt = '\%s' % self.oper_prompt
+        oper_prompt = "%r" % self.oper_prompt
+#        oper_prompt = "\%s" % self.oper_prompt
         config_prompt = self.config_prompt
         dummy, dummy, text = self._channel.expect([oper_prompt, config_prompt],
-                                                  self.timeout)
+                                                  read_delay)
         return text
