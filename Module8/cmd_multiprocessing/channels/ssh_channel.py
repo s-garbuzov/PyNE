@@ -66,7 +66,7 @@ class SSHChannel(object):
                     print("Connection to %s:%s has been closed" %
                           (self.ip_addr, self.port))
             except (Exception) as e:
-                print "!!!Error, %s " % e
+                print("!!!Error: [%s:%s]  %s " % (self.ip_addr, self.port, e))
 
     def send(self, data):
         assert(self._remote_shell is not None)
