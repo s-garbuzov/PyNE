@@ -5,9 +5,7 @@ import logging
 import multiprocessing as mp
 
 from datetime import datetime
-from cmd_multiprocessing.common.utils import cfg_load
-from cmd_multiprocessing.devices.factory import device_class_factory
-
+from Module8.cmd_multiprocessing.common.utils import cfg_load
 
 logging.basicConfig(level=logging.DEBUG, format='')
 logger = logging.getLogger(__name__)
@@ -16,6 +14,8 @@ logger = logging.getLogger(__name__)
 def get_version(device, msg_queue):
     """TBD"""
 
+    pass
+    """
     # Allocate object representing the device
     obj = device_class_factory(device)
 
@@ -32,6 +32,7 @@ def get_version(device, msg_queue):
 
     # Place the result on the queue for reading by the parent process
     msg_queue.put(result)
+   """
 
 
 def show_results(results):

@@ -19,8 +19,8 @@ async_command.py
 import multiprocessing as mp
 
 # from datetime import datetime
-from cmd_multiprocessing.common.utils import cfg_load
-from cmd_multiprocessing.devices.device_factory import DeviceFactory
+from Module8.cmd_multiprocessing.common.utils import cfg_load
+from Module8.cmd_multiprocessing.devices.device_factory import DeviceFactory
 
 
 def execute_command(device, cmd_string, read_delay, msg_queue):

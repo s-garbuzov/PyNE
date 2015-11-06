@@ -1,24 +1,10 @@
 #!/usr/bin/env python
 
-from cmd_multiprocessing.common.utils import cfg_load
+from Module8.cmd_multiprocessing.common.utils import cfg_load
 
 
 def check_status():
     pass
-    """
-    try:
-        ssh.connect(ip, username=user, key_filename=key_file)
-        return True
-    except (BadHostKeyException, AuthenticationException, 
-            SSHException, socket.error) as e:
-        print e
-        sleep(interval)
-    """
-    
-
-
-
-
 
 
 def main():

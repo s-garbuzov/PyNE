@@ -4,8 +4,8 @@ BrocadeVRouter class
 
 
 # this package local modules
-from cmd_multiprocessing.channels.ssh_channel import SSHChannel
-from cmd_multiprocessing.channels.telnet_channel import TELNETChannel
+from Module8.cmd_multiprocessing.channels.ssh_channel import SSHChannel
+from Module8.cmd_multiprocessing.channels.telnet_channel import TELNETChannel
 
 
 class BrocadeVRouter(object):
