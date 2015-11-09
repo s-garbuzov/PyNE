@@ -18,6 +18,24 @@ import time
 import telnetlib
 
 
+def enable_privileged_commands(device, telnet_conn, read_delay=1):
+    """Turn on privileged commands execution.
+    :param dict device: dictionary containing information about target device.
+    :param telnetlib.Telnet telnet_conn: an instance of TELNET client
+        connected to the device.
+    :param int read_delay: time to wait for the CLI command to complete.
+    """
+    cmd = "enable\n"
+    telnet_conn.write(cmd)
+    password_prompt = device['password_prompt']
+    dummy, match, dummy = telnet_conn.expect([password_prompt], read_delay)
+    if(match is not None):
+        password = "%s\n" % device['password']
+        telnet_conn.write(password)
+        admin_prompt = device['admin_prompt']
+        telnet_conn.expect([admin_prompt], read_delay)
+
+
 def disable_cli_paging(device, telnet_conn, read_delay=1):
     """
     Disable CLI paging on a remote device.
@@ -31,8 +49,8 @@ def disable_cli_paging(device, telnet_conn, read_delay=1):
     cmd = 'terminal length 0\n'
     telnet_conn.write(cmd)
     oper_prompt = "%r" % device['oper_prompt']
-    config_prompt = device['config_prompt']
-    dummy, match, dummy = telnet_conn.expect([oper_prompt, config_prompt],
+    admin_prompt = device['admin_prompt']
+    dummy, match, dummy = telnet_conn.expect([oper_prompt, admin_prompt],
                                              read_delay)
     if(match is not None):
         return True
@@ -51,7 +69,7 @@ def check_config_mode(device, telnet_conn):
     """
     cmd = '\n'
     telnet_conn.write(cmd)
-    config_prompt = device['config_prompt']
+    config_prompt = "(%s)%s" % ('config', device['admin_prompt'])
     idx, dummy, dummy = telnet_conn.expect([config_prompt], timeout=1)
     if(idx == 0):
         return True
@@ -72,9 +90,9 @@ def enter_cli_cfg_mode(device, telnet_conn, read_delay=1):
     if(check_config_mode(device, telnet_conn) is True):
         return True
 
-    cmd = "configure\n"
+    cmd = "configure terminal\n"
     telnet_conn.write(cmd)
-    config_prompt = device['config_prompt']
+    config_prompt = "(%s)%s" % ('config', device['admin_prompt'])
     idx, dummy, dummy = telnet_conn.expect([config_prompt], read_delay)
     if(idx == 0):
         return True
@@ -132,10 +150,10 @@ def connect_telnet(device):
             telnet_client.write('%s\n' % pswd)
 
         # Check if we got to the console prompt
-        oper_prompt = "%r" % device['oper_prompt']
-        config_prompt = device['config_prompt']
+        oper_prompt = device['oper_prompt']
+        admin_prompt = device['admin_prompt']
         dummy, match, dummy = \
-            telnet_client.expect([oper_prompt, config_prompt], timeout)
+            telnet_client.expect([oper_prompt, admin_prompt], timeout)
         if(match is None):
             disconnect_telnet(device, telnet_client)
             err_msg = ("Login failed (uname=%s, pswd=%s)" % (uname, pswd))
@@ -182,8 +200,8 @@ def execute_command(device, cli_command, read_delay=1):
     telnet_conn = connect_telnet(device)
     if(telnet_conn is not None):
         # Turn off CLI paging and enter configuration mode
+        enable_privileged_commands(device, telnet_conn, read_delay)
         disable_cli_paging(device, telnet_conn, read_delay)
-        enter_cli_cfg_mode(device, telnet_conn, read_delay)
 
         # Execute command and wait for command completion
         telnet_conn.write(cli_command)
@@ -197,10 +215,10 @@ def execute_command(device, cli_command, read_delay=1):
         #   that matches
         # - the match object returned
         # - the text read up till and including the match
-        oper_prompt = "%r" % device['oper_prompt']
-        config_prompt = device['config_prompt']
+        oper_prompt = device['oper_prompt']
+        admin_prompt = device['admin_prompt']
         dummy, match, text = \
-            telnet_conn.expect([oper_prompt, config_prompt], read_delay)
+            telnet_conn.expect([oper_prompt, admin_prompt], read_delay)
         if match is not None:
             output = text
 
@@ -213,16 +231,16 @@ def execute_command(device, cli_command, read_delay=1):
 def main():
     # Remote device TELNET session specific info
     device = {
-        'ip_addr': '172.22.17.111',
+        'ip_addr': '10.30.30.3',
         'port': 23,
         'timeout': 3,
-        'username': 'testuser',
-        'password': 'testpassword',
+        'username': 'admin',
+        'password': 'cisco',
         'login_prompt': 'sername:',
         'password_prompt': 'assword:',
-        'oper_prompt': '$',
-        'config_prompt': '#',
-        'secret': 'secret',
+        'oper_prompt': '>',
+        'admin_prompt': '#',
+        'secret': 'cisco',
         'verbose': True
     }
 
