@@ -20,7 +20,7 @@ command_sftp.py
 # built-in modules
 import os
 
-from sftp_session import SFTPSession
+from Module7.sftp_session import SFTPSession
 
 
 def get_file(device, remote_path, local_path):

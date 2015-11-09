@@ -13,23 +13,23 @@ command_telnet.py
 
 """
 
-from cisco_ios import CiscoIOS
+from Module7.cisco_ios import CiscoIOS
 
 
 def main():
     # Remote device TELNET session specific info
     device = {
         'channel': 'telnet',
-        'ip_addr': '172.22.17.111',
+        'ip_addr': '10.30.30.3',
         'port': 23,
         'timeout': 3,
-        'username': 'testuser',
-        'password': 'testpassword',
+        'username': 'admin',
+        'password': 'cisco',
         'login_prompt': 'sername:',
         'password_prompt': 'assword:',
-        'oper_prompt': '$',
-        'config_prompt': '#',
-        'secret': 'secret',
+        'oper_prompt': '>',
+        'admin_prompt': '#',
+        'secret': 'cisco',
         'verbose': True
     }
 
@@ -40,8 +40,8 @@ def main():
     obj = CiscoIOS(**device)  # Allocate object representing the device
     obj.connect()             # Connect to device
     if(obj.connected()):      # Check if connected
+        obj.enable_privileged_commands()  # Turn on privileged commands
         obj.disable_paging()  # Disable paging
-        obj.enter_cfg_mode()  # Enter configuration mode
 
         # Execute command and get the result
         output = obj.execute_command(cmd_string)

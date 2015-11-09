@@ -13,7 +13,7 @@ command_telnet.py
 
 """
 
-from brocade_vrouter import BrocadeVRouter
+from Module7.brocade_vrouter import BrocadeVRouter
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
         'login_prompt': 'login:',
         'password_prompt': 'assword:',
         'oper_prompt': '$',
-        'config_prompt': '#',
+        'admin_prompt': '#',
         'secret': 'secret',
         'verbose': True
     }

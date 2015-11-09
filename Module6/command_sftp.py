@@ -126,7 +126,7 @@ def get_file(device, remote_path, local_path):
             if(device['verbose']):
                 print("Transfer of %r has completed" % remote_path)
             success = True
-        except IOError as e:
+        except (paramiko.SSHException, IOError) as e:
             success = False
             print "!!! Error: %s " % e
         finally:
@@ -144,12 +144,12 @@ def get_file(device, remote_path, local_path):
 def main():
     # Remote device SFTP session specific info
     device = {
-        'ip_addr': '172.22.17.110',
-        'port': 830,
+        'ip_addr': '10.30.30.3',
+        'port': 22,
         'timeout': 3,
-        'username': 'vyatta',
-        'password': 'vyatta',
-        'secret': 'secret',
+        'username': 'admin',
+        'password': 'cisco',
+        'secret': 'cisco',
         'verbose': True
     }
 

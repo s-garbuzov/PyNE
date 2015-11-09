@@ -7,40 +7,42 @@ device via SSH connection.
 
 Administrator login options and CLI commands are device specific,
 thus this script needs to be adapted to a concrete device specifics.
-Current script assumes interaction with Brocade vRouter device.
+Current script assumes interaction with Cisco IOS device.
 
 command_ssh.py
 
 """
 
-from brocade_vrouter import BrocadeVRouter
+from Module7.cisco_ios import CiscoIOS
 
 
 def main():
     # Remote device SSH session specific info
     device = {
         'channel': 'ssh',
-        'ip_addr': '172.22.17.110',
-        'port': 830,
+        'ip_addr': '10.30.30.3',
+        'port': 22,
         'timeout': 3,
-        'username': 'vyatta',
-        'password': 'vyatta',
-        'oper_prompt': '$',
-        'config_prompt': '#',
+        'username': 'admin',
+        'password': 'cisco',
+        'login_prompt': 'sername:',
+        'password_prompt': 'assword:',
+        'oper_prompt': '>',
+        'admin_prompt': '#',
         'secret': 'secret',
-        'max_bytes': 1000,  # The maximum amount of data to be received at once
+        'max_bytes': 9000,  # The maximum amount of data to be received at once
         'verbose': True
     }
 
-    cmd_string = "show interfaces\n"
+    cmd_string = "show interfaces | include line protocol\n"
     print("\nCommand to be executed: %s" % cmd_string)
     output = None
 
-    obj = BrocadeVRouter(**device)  # Allocate object representing the device
+    obj = CiscoIOS(**device)  # Allocate object representing the device
     obj.connect()                   # Connect to device
     if(obj.connected()):            # Check if connected
+        obj.enable_privileged_commands()  # Turn on privileged commands
         obj.disable_paging()        # Disable paging
-        obj.enter_cfg_mode()        # Enter configuration mode
 
         # Execute command and get the result
         output = obj.execute_command(cmd_string)

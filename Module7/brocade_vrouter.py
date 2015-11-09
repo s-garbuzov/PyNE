@@ -3,9 +3,9 @@ BrocadeVRouter class (subclass of the NetworkDevice base class)
 """
 
 # this project local modules
-from network_device import NetworkDevice
-from ssh_channel import SSHChannel
-from telnet_channel import TELNETChannel
+from Module7.network_device import NetworkDevice
+from Module7.ssh_channel import SSHChannel
+from Module7.telnet_channel import TELNETChannel
 
 
 class BrocadeVRouter(NetworkDevice):
@@ -54,7 +54,7 @@ class BrocadeVRouter(NetworkDevice):
             channel = TELNETChannel(self.ip_addr, self.port,
                                     self.username, self.password,
                                     self.login_prompt, self.password_prompt,
-                                    self.oper_prompt, self.config_prompt,
+                                    self.oper_prompt, self.admin_prompt,
                                     self.timeout, self.verbose)
         else:
             assert False, 'unexpected attribute value: %s' % self.channel
@@ -76,7 +76,7 @@ class BrocadeVRouter(NetworkDevice):
         assert(self._channel is not None)
         cmd = '\n'
         output = self.execute_command(cmd, 1)
-        if(self.config_prompt in output):
+        if(self.admin_prompt in output):
             return True
         else:
             return False
