@@ -21,7 +21,7 @@ class SSHChannel(object):
                  timeout=None, verbose=False):
         self._channel = None
         self._remote_shell = None
-        self.max_bytes = max_bytes
+        self._max_bytes = max_bytes
         self.ip_addr = ip_addr
         self.port = port
         self.admin_name = admin_name
@@ -44,7 +44,7 @@ class SSHChannel(object):
                                look_for_keys=False, allow_agent=False,
                                timeout=self.timeout)
             rsh = ssh_client.invoke_shell()
-            rsh.recv(self.max_bytes)
+            rsh.recv(self._max_bytes)
             self._remote_shell = rsh
             self._channel = ssh_client
             if(self.verbose):
@@ -75,4 +75,4 @@ class SSHChannel(object):
     def recv(self, read_delay):
         assert(self._remote_shell is not None)
         time.sleep(read_delay)
-        return self._remote_shell.recv(self.max_bytes)
+        return self._remote_shell.recv(self._max_bytes)

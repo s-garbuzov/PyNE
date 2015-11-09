@@ -73,6 +73,9 @@ class BrocadeVRouter(object):
         cmd = 'set terminal length 0\n'
         self.execute_command(cmd, 1)
 
+    def enable_privileged_commands(self):
+        self.enter_cfg_mode()
+
     def check_cfg_mode(self):
         assert(self._channel is not None)
         cmd = '\n'

@@ -4,8 +4,9 @@
 
 Example of a script that asynchronously executes a CLI command
 on multiple remote devices.
-CLI commands are device specific, so this package
-needs to be adapted to concrete devices.
+CLI commands are device specific, so this package needs to be adapted
+to concrete devices.
+Current script assumes interaction with Cisco IOS devices.
 
 NOTES: This package requires installation of the 'paramiko' Python package
           pip install paramiko
@@ -18,7 +19,6 @@ async_command.py
 
 import multiprocessing as mp
 
-# from datetime import datetime
 from Module8.cmd_multiprocessing.common.utils import cfg_load
 from Module8.cmd_multiprocessing.devices.device_factory import DeviceFactory
 
@@ -42,8 +42,8 @@ def execute_command(device, cmd_string, read_delay, msg_queue):
     obj = DeviceFactory.create(device)
     obj.connect()                   # Connect to device
     if(obj.connected()):            # Check if connected
+        obj.enable_privileged_commands()  # Turn on privileged commands
         obj.disable_paging()        # Disable paging
-        obj.enter_cfg_mode()        # Enter configuration mode
 
         # Execute command and get the result
         output = obj.execute_command(cmd_string)
@@ -112,7 +112,7 @@ def dispatch_command(cfg_file, cmd_string, read_delay=1):
 
 if __name__ == '__main__':
     cfg_file = "../device_list.yml"
-    cmd_string = "show interfaces\n"
+    cmd_string = "show interfaces | include line protocol\n"
     print("\nCommand to be executed: %s" % cmd_string)
     results = dispatch_command(cfg_file, cmd_string, read_delay=1)
     print("\nCommand execution results:\n")

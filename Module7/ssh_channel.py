@@ -14,6 +14,7 @@ import paramiko
 
 class SSHChannel(object):
     """SSH connection to a remote device."""
+
     def __init__(self, ip_addr, port,
                  admin_name, admin_pswd,
                  max_bytes=1000,

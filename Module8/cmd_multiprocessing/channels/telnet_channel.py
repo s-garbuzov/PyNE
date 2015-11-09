@@ -12,7 +12,7 @@ class TELNETChannel(object):
     def __init__(self, ip_addr, port,
                  admin_name, admin_pswd,
                  login_prompt, password_prompt,
-                 oper_prompt='$', config_prompt='#',
+                 oper_prompt='>', admin_prompt='#',
                  timeout=None, verbose=False):
         self._channel = None
         self.ip_addr = ip_addr
@@ -22,7 +22,7 @@ class TELNETChannel(object):
         self.login_prompt = login_prompt
         self.pswd_prompt = password_prompt
         self.oper_prompt = oper_prompt
-        self.config_prompt = config_prompt
+        self.admin_prompt = admin_prompt
         self.timeout = timeout
         self.verbose = verbose
 
@@ -66,10 +66,10 @@ class TELNETChannel(object):
                 telnet_client.write('%s\n' % self.admin_pswd)
 
             # Check if we got to the console prompt
-            oper_prompt = '\%s' % self.oper_prompt
-            config_prompt = self.config_prompt
+            oper_prompt = self.oper_prompt
+            admin_prompt = self.admin_prompt
             dummy, match, dummy = \
-                telnet_client.expect([oper_prompt, config_prompt],
+                telnet_client.expect([oper_prompt, admin_prompt],
                                      self.timeout)
             if(match is None):
                 self.close()
@@ -99,9 +99,8 @@ class TELNETChannel(object):
 
     def recv(self, read_delay):
         assert(self._channel is not None)
-        oper_prompt = "%r" % self.oper_prompt
-#        oper_prompt = "\%s" % self.oper_prompt
-        config_prompt = self.config_prompt
-        dummy, dummy, text = self._channel.expect([oper_prompt, config_prompt],
-                                                  read_delay)
+        oper_prompt = self.oper_prompt
+        admin_prompt = self.admin_prompt
+        dummy, dummy, text = \
+            self._channel.expect([oper_prompt, admin_prompt], read_delay)
         return text

@@ -55,7 +55,7 @@ class CiscoIOS(object):
             channel = TELNETChannel(self.ip_addr, self.port,
                                     self.username, self.password,
                                     self.login_prompt, self.password_prompt,
-                                    self.oper_prompt, self.config_prompt,
+                                    self.oper_prompt, self.admin_prompt,
                                     self.timeout, self.verbose)
         else:
             assert False, 'unexpected attribute value: %s' % self.channel
@@ -68,6 +68,16 @@ class CiscoIOS(object):
         if(self._channel is not None):
             self._channel.close()
 
+    def enable_privileged_commands(self):
+        assert(self._channel is not None)
+        cmd = "enable\n"
+        self._channel.send(cmd)
+        output = self._channel.recv(read_delay=1)
+        if(self.password_prompt in output):
+            password = "%s\n" % self.password
+            self._channel.send(password)
+            output = self._channel.recv(read_delay=1)
+
     def disable_paging(self):
         assert(self._channel is not None)
         cmd = 'terminal length 0\n'
@@ -77,7 +87,8 @@ class CiscoIOS(object):
         assert(self._channel is not None)
         cmd = '\n'
         output = self.execute_command(cmd, 1)
-        if(self.config_prompt in output):
+        config_prompt = "(%s)%s" % ('config', self.admin_prompt)
+        if(config_prompt in output):
             return True
         else:
             return False
