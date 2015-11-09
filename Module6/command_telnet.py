@@ -36,7 +36,7 @@ def enable_privileged_commands(device, telnet_conn, read_delay=1):
         telnet_conn.expect([admin_prompt], read_delay)
 
 
-def disable_cli_paging(device, telnet_conn, read_delay=1):
+def disable_paging(device, telnet_conn, read_delay=1):
     """
     Disable CLI paging on a remote device.
     :param telnetlib.Telnet telnet_conn: an instance of TELNET client
@@ -77,7 +77,7 @@ def check_config_mode(device, telnet_conn):
         return False
 
 
-def enter_cli_cfg_mode(device, telnet_conn, read_delay=1):
+def enter_config_mode(device, telnet_conn, read_delay=1):
     """
     Enter CLI configuration mode on a remote device.
     :param dict device: dictionary containing information about target device.
@@ -199,9 +199,9 @@ def execute_command(device, cli_command, read_delay=1):
     # Connect to device and execute the command
     telnet_conn = connect_telnet(device)
     if(telnet_conn is not None):
-        # Turn off CLI paging and enter configuration mode
+        # Enter privilege mode and turn off CLI paging
         enable_privileged_commands(device, telnet_conn, read_delay)
-        disable_cli_paging(device, telnet_conn, read_delay)
+        disable_paging(device, telnet_conn, read_delay)
 
         # Execute command and wait for command completion
         telnet_conn.write(cli_command)

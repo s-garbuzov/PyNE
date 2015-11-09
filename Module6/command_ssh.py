@@ -7,6 +7,7 @@ device over established SSH connection.
 
 Administrator login options and CLI commands are device specific,
 thus this script needs to be adapted to a concrete device specifics.
+Current script assumes interaction with Cisco IOS device.
 
 NOTES: Requires installation of the 'paramiko' Python package
           pip install paramiko
@@ -27,7 +28,23 @@ import socket
 import paramiko
 
 
-def disable_cli_paging(device, rsh):
+def enable_privileged_commands(device, rsh):
+    """Turn on privileged commands execution.
+    :param dict device: dictionary containing information about target device.
+    :param paramiko.channel.Channel rsh: channel connected to a remote shell.
+    """
+    cmd = "enable\n"
+    # Execute the command (wait for command to complete)
+    rsh.send(cmd)
+    time.sleep(1)
+    output = rsh.recv(device['max_bytes'])
+    if(device['password_prompt'] in output):
+        password = "%s\n" % device['password']
+        rsh.send(password)
+        rsh.recv(device['max_bytes'])
+
+
+def disable_paging(device, rsh):
     """
     Disable CLI paging on a remote device.
     :param dict device: dictionary containing information about target device.
@@ -35,7 +52,7 @@ def disable_cli_paging(device, rsh):
     :return: None
     """
 
-    cmd = 'set terminal length 0\n'
+    cmd = 'terminal length 0\n'
     # Execute the command (wait for command to complete)
     rsh.send(cmd)
     time.sleep(1)
@@ -55,14 +72,14 @@ def check_config_mode(device, rsh):
     cmd = '\n'
     rsh.send(cmd)
     output = rsh.recv(device['max_bytes'])
-    config_prompt = device['config_prompt']
+    config_prompt = "(%s)%s" % ('config', device['admin_prompt'])
     if(config_prompt in output):
         return True
     else:
         return False
 
 
-def enter_cli_cfg_mode(device, rsh):
+def enter_config_mode(device, rsh):
     """
     Enter CLI configuration mode on a remote device.
     :param dict device: dictionary containing information about target device.
@@ -73,7 +90,7 @@ def enter_cli_cfg_mode(device, rsh):
     if(check_config_mode(device, rsh) is True):
         return
 
-    cmd = "configure\n"
+    cmd = "configure terminal\n"
     # Execute the command (wait for command to complete)
     rsh.send(cmd)
     time.sleep(1)
@@ -161,9 +178,9 @@ def execute_command(device, cli_command, read_delay=1):
             remote_shell = ssh_conn.invoke_shell()
             remote_shell.recv(device['max_bytes'])
 
-            # Turn off CLI paging and enter configuration mode
-            disable_cli_paging(device, remote_shell)
-            enter_cli_cfg_mode(device, remote_shell)
+            # Enter privilege mode and turn off CLI paging
+            enable_privileged_commands(device, remote_shell)
+            disable_paging(device, remote_shell)
 
             # Execute and wait for command completion,
             # then read result from the receive buffer
@@ -184,19 +201,22 @@ def execute_command(device, cli_command, read_delay=1):
 def main():
     # Remote device SSH session specific info
     device = {
-        'ip_addr': '172.22.17.110',
-        'port': 830,
+        'ip_addr': '10.30.30.3',
+        'port': 22,
         'timeout': 3,
-        'username': 'vyatta',
-        'password': 'vyatta',
-        'oper_prompt': '$',
-        'config_prompt': '#',
-        'secret': 'secret',
-        'max_bytes': 1000,  # The maximum amount of data to be received at once
+        'username': 'admin',
+        'password': 'cisco',
+        'login_prompt': 'sername:',
+        'password_prompt': 'assword:',
+        'oper_prompt': '>',
+        'admin_prompt': '#',
+        'secret': 'cisco',
+        'max_bytes': 9000,  # The maximum amount of data to be received at once
         'verbose': True
     }
 
-    cmd_string = "show interfaces\n"
+#    cmd_string = "show interfaces\n"
+    cmd_string = "show interfaces | include line protocol\n"
     print("\nCommand to be executed: %s" % cmd_string)
     output = execute_command(device, cmd_string, read_delay=1)
     if(output is not None):
