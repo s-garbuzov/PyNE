@@ -17,20 +17,22 @@ async_command.py
 
 """
 
+# Python standard library modules
 import multiprocessing as mp
 
-from Module8.cmd_multiprocessing.common.utils import cfg_load
-from Module8.cmd_multiprocessing.devices.device_factory import DeviceFactory
+# This package local modules
+from Module8.sample_project.common.utils import cfg_load
+from Module8.sample_project.devices.device_factory import DeviceFactory
 
 
-def execute_command(device, cmd_string, read_delay, msg_queue):
+def execute_command(device_info, cmd_string, read_delay, msg_queue):
     """
     Execute a CLI command on a remote device over established
     management channel.
     This function is asynchronously executed in a context of a
     submitted process.
-    :param dict device: dictionary containing information for establishing
-        management session to a target device.
+    :param dict device_info: dictionary containing information
+        about target device.
     :param str cmd_string: CLI command to be executed.
     :param int read_delay: time to wait for the CLI command to complete.
     :return: output of the command on success, error message otherwise.
@@ -39,24 +41,24 @@ def execute_command(device, cmd_string, read_delay, msg_queue):
     output = None
 
     # Allocate object representing the device
-    obj = DeviceFactory.create(device)
-    obj.connect()                   # Connect to device
-    if(obj.connected()):            # Check if connected
-        obj.enable_privileged_commands()  # Turn on privileged commands
-        obj.disable_paging()        # Disable paging
+    device = DeviceFactory.create(device_info)
+    device.connect()                   # Connect to device
+    if(device.connected()):            # Check if connected
+        device.enable_privileged_commands()  # Turn on privileged commands
+        device.disable_paging()        # Disable paging
 
         # Execute command and get the result
-        output = obj.execute_command(cmd_string)
-        if((device['verbose'])):
+        output = device.execute_command(cmd_string)
+        if((device_info['verbose'])):
             print("[%s] CLI command %r has been executed" %
-                  (obj.to_str(), cmd_string))
+                  (device.to_str(), cmd_string))
 
-        obj.disconnect()            # Disconnect from device
+        device.disconnect()            # Disconnect from device
     else:
         output = "Failed to connect"
 
     # Return the result
-    msg_queue.put("[%s] %s" % (obj.to_str(), output))
+    msg_queue.put("[%s] %s" % (device.to_str(), output))
 
 
 def show_results(results):
@@ -75,13 +77,13 @@ def dispatch_command(cfg_file, cmd_string, read_delay=1):
     then collects and returns results.
     :param str cfg_file: path to the configuration file containing
         list of target devices.
-    :param str cli_command: CLI command to be executed.
+    :param str cmd_string: CLI command to be executed.
     :param int read_delay: time to wait for the CLI command to complete.
     :return: command execution results collected from all the devices
     """
 
-    devices = cfg_load(cfg_file)
-    if(devices is None):
+    devices_info = cfg_load(cfg_file)
+    if(devices_info is None):
         print("Config file '%s' read error " % cfg_load)
         exit(1)
 
@@ -91,9 +93,9 @@ def dispatch_command(cfg_file, cmd_string, read_delay=1):
     # To execute command in parallel on multiple devices
     # create a separate (child) process for each device
     jobs = []
-    for device in devices:
+    for item in devices_info:
         p = mp.Process(target=execute_command,
-                       args=(device, cmd_string, read_delay, msg_queue))
+                       args=(item, cmd_string, read_delay, msg_queue))
         jobs.append(p)
         p.start()  # Start the process
 

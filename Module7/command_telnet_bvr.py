@@ -18,7 +18,7 @@ from Module7.brocade_vrouter import BrocadeVRouter
 
 def main():
     # Remote device TELNET session specific info
-    device = {
+    device_info = {
         'channel': 'telnet',
         'ip_addr': '172.22.17.110',
         'port': 23,
@@ -34,20 +34,24 @@ def main():
     }
 
     cmd_string = "show interfaces\n"
-    obj = BrocadeVRouter(**device)  # Allocate object representing the device
-    obj.connect()                   # Connect to device
-    if(obj.connected()):            # Check if connected
-        obj.disable_paging()        # Disable paging
-        obj.enter_cfg_mode()        # Enter configuration mode
+    print("\nCommand to be executed: %s" % cmd_string)
+    output = None
+
+    # Allocate object representing the device
+    device = BrocadeVRouter(**device_info)
+    device.connect()                   # Connect to device
+    if(device.connected()):            # Check if connected
+        device.disable_paging()        # Disable paging
+        device.enter_cfg_mode()        # Enter configuration mode
 
         # Execute command and get the result
-        output = obj.execute_command(cmd_string)
-        if(device['verbose']):
+        output = device.execute_command(cmd_string)
+        if(device_info['verbose']):
             print("CLI command %r has been executed" % cmd_string)
 
-        obj.disconnect()            # Disconnect from device
+        device.disconnect()            # Disconnect from device
 
-    print("\n[%s]" % obj.to_str())
+    print("\n[%s]" % device.to_str())
     if(output is not None):
         print("Command execution result:\n")
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")

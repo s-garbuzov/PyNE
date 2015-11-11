@@ -18,7 +18,7 @@ from Module7.cisco_ios import CiscoIOS
 
 def main():
     # Remote device TELNET session specific info
-    device = {
+    device_info = {
         'channel': 'telnet',
         'ip_addr': '10.30.30.3',
         'port': 23,
@@ -37,20 +37,20 @@ def main():
     print("\nCommand to be executed: %s" % cmd_string)
     output = None
 
-    obj = CiscoIOS(**device)  # Allocate object representing the device
-    obj.connect()             # Connect to device
-    if(obj.connected()):      # Check if connected
-        obj.enable_privileged_commands()  # Turn on privileged commands
-        obj.disable_paging()  # Disable paging
+    device = CiscoIOS(**device_info)  # Allocate object representing the device
+    device.connect()             # Connect to device
+    if(device.connected()):      # Check if connected
+        device.enable_privileged_commands()  # Turn on privileged commands
+        device.disable_paging()  # Disable paging
 
         # Execute command and get the result
-        output = obj.execute_command(cmd_string)
-        if(device['verbose']):
+        output = device.execute_command(cmd_string)
+        if(device_info['verbose']):
             print("CLI command '%r' has been executed" % cmd_string)
 
-        obj.disconnect()      # Disconnect from device
+        device.disconnect()      # Disconnect from device
 
-    print("\n[%s]" % obj.to_str())
+    print("\n[%s]" % device.to_str())
     if(output is not None):
         print("Command execution result:\n")
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")

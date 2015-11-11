@@ -1,14 +1,14 @@
 """
-CiscoIOS class
+CiscoXR class
 """
 
 # this package local modules
-from Module8.cmd_multiprocessing.channels.ssh_channel import SSHChannel
-from Module8.cmd_multiprocessing.channels.telnet_channel import TELNETChannel
+from Module8.sample_project.channels.ssh_channel import SSHChannel
+from Module8.sample_project.channels.telnet_channel import TELNETChannel
 
 
-class CiscoIOS(object):
-    """Cisco IOS device with device specific methods."""
+class CiscoXR(object):
+    """Cisco IOS-XR device with device specific methods."""
 
     def __init__(self, **kwargs):
         """Allocate and return a new instance object."""
@@ -16,7 +16,7 @@ class CiscoIOS(object):
         # Initialize this class attributes
         self._channel = None
         self.vendor = "Cisco"
-        self.os_type = "IOS"
+        self.os_type = "IOS-XR"
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -40,7 +40,8 @@ class CiscoIOS(object):
         return self.ip_addr
 
     def connected(self):
-        return True if(self._channel is not None) else False
+        return False
+#        return True if(self._channel is not None) else False
 
     def connect(self):
         if(self._channel is not None):
@@ -55,7 +56,7 @@ class CiscoIOS(object):
             channel = TELNETChannel(self.ip_addr, self.port,
                                     self.username, self.password,
                                     self.login_prompt, self.password_prompt,
-                                    self.oper_prompt, self.admin_prompt,
+                                    self.oper_prompt, self.config_prompt,
                                     self.timeout, self.verbose)
         else:
             assert False, 'unexpected attribute value: %s' % self.channel
@@ -68,16 +69,6 @@ class CiscoIOS(object):
         if(self._channel is not None):
             self._channel.close()
 
-    def enable_privileged_commands(self):
-        assert(self._channel is not None)
-        cmd = "enable\n"
-        self._channel.send(cmd)
-        output = self._channel.recv(read_delay=1)
-        if(self.password_prompt in output):
-            password = "%s\n" % self.password
-            self._channel.send(password)
-            output = self._channel.recv(read_delay=1)
-
     def disable_paging(self):
         assert(self._channel is not None)
         cmd = 'terminal length 0\n'
@@ -87,8 +78,7 @@ class CiscoIOS(object):
         assert(self._channel is not None)
         cmd = '\n'
         output = self.execute_command(cmd, 1)
-        config_prompt = "(%s)%s" % ('config', self.admin_prompt)
-        if(config_prompt in output):
+        if(self.config_prompt in output):
             return True
         else:
             return False

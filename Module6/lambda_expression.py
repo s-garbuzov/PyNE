@@ -38,14 +38,14 @@ print "\n"
 print "%s" % ("-" * 70)
 print " Device selection implemented with the use of lambda expression"
 print "%s" % ("-" * 70)
-cisco_devices = filter(lambda x: x['vendor'].lower() == 'cisco'.lower(),
+cisco_devices = filter(lambda x: x['vendor'].lower() == 'cisco',
                        all_devices)
 print "\n"
 print "List of Cisco network devices:"
 for device in cisco_devices:
     print " %s" % device
 
-hp_devices = filter(lambda x: x['vendor'].lower() == 'hp'.lower(),
+hp_devices = filter(lambda x: x['vendor'].lower() == 'hp',
                     all_devices)
 print "\n"
 print "List of HP network devices: %s"

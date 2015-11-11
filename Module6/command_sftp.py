@@ -25,10 +25,11 @@ import functools
 import paramiko
 
 
-def connect_ssh(device):
+def connect_ssh(device_info):
     """
     Establish SSH connection to a remote device.
-    :param dict device: dictionary containing information about target device.
+    :param dict device_info: dictionary containing information
+        about target device.
     :return: an instance of paramiko.SSHClient class connected
         to the device on success, None on failure.
     """
@@ -42,22 +43,24 @@ def connect_ssh(device):
         # policy requirements)
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-        if(device['verbose']):
-            print("Connecting to %s:%s" % (device['ip_addr'], device['port']))
+        if(device_info['verbose']):
+            print("Connecting to %s:%s" %
+                  (device_info['ip_addr'], device_info['port']))
 
         # o 'look_for_keys' is set to False to disable searching
         #   for discoverable private key files in '~/.ssh/'
         # o 'allow_agent' is set to False to disable connecting
         #   to the SSH agent on the local machine for obtaining
         #   the private key
-        ssh_client.connect(hostname=device['ip_addr'], port=device['port'],
-                           username=device['username'],
-                           password=device['password'],
+        ssh_client.connect(hostname=device_info['ip_addr'],
+                           port=device_info['port'],
+                           username=device_info['username'],
+                           password=device_info['password'],
                            look_for_keys=False, allow_agent=False,
-                           timeout=device['timeout'])
-        if(device['verbose']):
+                           timeout=device_info['timeout'])
+        if(device_info['verbose']):
             print("Connection to %s:%s has been established" %
-                  (device['ip_addr'], device['port']))
+                  (device_info['ip_addr'], device_info['port']))
         return ssh_client
     except (paramiko.BadHostKeyException,
             paramiko.AuthenticationException,
@@ -67,9 +70,11 @@ def connect_ssh(device):
         return None
 
 
-def disconnect_ssh(device, ssh_conn):
+def disconnect_ssh(device_info, ssh_conn):
     """
     Close active SSH connection to a remote device.
+    :param dict device_info: dictionary containing information
+        about target device.
     :param paramiko.SSHClient ssh_conn: object instance connected
         to a remote SSH server.
     :return: None
@@ -77,9 +82,9 @@ def disconnect_ssh(device, ssh_conn):
 
     try:
         ssh_conn.close()
-        if(device['verbose']):
+        if(device_info['verbose']):
             print("SSH connection to %s:%s has been closed" %
-                  (device['ip_addr'], device['port']))
+                  (device_info['ip_addr'], device_info['port']))
     except (Exception) as e:
         print "!!!Error, %s " % e
 
@@ -95,7 +100,7 @@ def transfer_progress(filename, transfered, total):
               (filename, transfered, total, 100. * transfered / total))
 
 
-def get_file(device, remote_path, local_path):
+def get_file(device_info, remote_path, local_path):
     """Copy a remote file ('remote_path') from SFTP server running
     on the 'device' to the 'local_path' on this machine."""
 
@@ -111,19 +116,19 @@ def get_file(device, remote_path, local_path):
             f.close()
 
     # Connect to remote SSH server running on the device
-    ssh_conn = connect_ssh(device)
+    ssh_conn = connect_ssh(device_info)
     if ssh_conn is not None:
         sftp_session = None
         try:
             # Open an SFTP session on the SSH server
             sftp_session = ssh_conn.open_sftp()
             callback_func = None
-            if(device['verbose']):
+            if(device_info['verbose']):
                 print ("SFTP session started")
                 callback_func = functools.partial(transfer_progress,
                                                   remote_path)
             sftp_session.get(remote_path, local_path, callback_func)
-            if(device['verbose']):
+            if(device_info['verbose']):
                 print("Transfer of %r has completed" % remote_path)
             success = True
         except (paramiko.SSHException, IOError) as e:
@@ -134,8 +139,8 @@ def get_file(device, remote_path, local_path):
             if(sftp_session is not None):
                 sftp_session.close()
             # Disconnect from SSH Server
-            disconnect_ssh(device, ssh_conn)
-            if(device['verbose']):
+            disconnect_ssh(device_info, ssh_conn)
+            if(device_info['verbose']):
                 print ("SFTP session ended")
 
     return success
@@ -143,7 +148,7 @@ def get_file(device, remote_path, local_path):
 
 def main():
     # Remote device SFTP session specific info
-    device = {
+    device_info = {
         'ip_addr': '10.30.30.3',
         'port': 22,
         'timeout': 3,
@@ -156,7 +161,7 @@ def main():
     file_name = 'auth.log'
     remote_path = "/var/log/%s" % file_name
     local_path = "/tmp/mylogs/%s" % file_name
-    success = get_file(device, remote_path, local_path)
+    success = get_file(device_info, remote_path, local_path)
     if success:
         print("Successfully loaded '%s' file to '%s'" %
               (remote_path, local_path))

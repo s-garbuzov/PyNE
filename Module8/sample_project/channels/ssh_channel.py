@@ -4,7 +4,7 @@ Defines methods that are generally applicable to different platforms.
 """
 
 
-# built-in modules
+# Python standard library modules
 import socket
 import time
 

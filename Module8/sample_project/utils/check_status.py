@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from Module8.cmd_multiprocessing.common.utils import cfg_load
+from Module8.sample_project.common.utils import cfg_load
 
 
 def check_status():

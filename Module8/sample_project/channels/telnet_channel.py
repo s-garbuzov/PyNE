@@ -3,7 +3,7 @@ Class that handles TELNET connection to a network device.
 Defines methods that are generally applicable to different platforms.
 """
 
-# built-in modules
+# Python standard library modules
 import telnetlib
 
 

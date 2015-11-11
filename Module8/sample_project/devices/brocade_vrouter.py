@@ -1,22 +1,22 @@
 """
-CiscoXR class
+BrocadeVRouter class
 """
 
 # this package local modules
-from Module8.cmd_multiprocessing.channels.ssh_channel import SSHChannel
-from Module8.cmd_multiprocessing.channels.telnet_channel import TELNETChannel
+from Module8.sample_project.channels.ssh_channel import SSHChannel
+from Module8.sample_project.channels.telnet_channel import TELNETChannel
 
 
-class CiscoXR(object):
-    """Cisco IOS-XR device with device specific methods."""
+class BrocadeVRouter(object):
+    """Brocade vRouter device with device specific methods."""
 
     def __init__(self, **kwargs):
         """Allocate and return a new instance object."""
 
         # Initialize this class attributes
         self._channel = None
-        self.vendor = "Cisco"
-        self.os_type = "IOS-XR"
+        self.vendor = "Brocade"
+        self.os_type = "Linux"
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -26,7 +26,7 @@ class CiscoXR(object):
 
     def get_version(self):
         status = True
-        output = "1.1.1"
+        output = "3.2.1R6"
         return status, output
 
     def get_vendor(self):
@@ -34,14 +34,12 @@ class CiscoXR(object):
 
     def get_os_type(self):
         return self.os_type
-        return "IOS"
 
     def get_ipaddr(self):
         return self.ip_addr
 
     def connected(self):
-        return False
-#        return True if(self._channel is not None) else False
+        return True if(self._channel is not None) else False
 
     def connect(self):
         if(self._channel is not None):
@@ -71,8 +69,11 @@ class CiscoXR(object):
 
     def disable_paging(self):
         assert(self._channel is not None)
-        cmd = 'terminal length 0\n'
+        cmd = 'set terminal length 0\n'
         self.execute_command(cmd, 1)
+
+    def enable_privileged_commands(self):
+        self.enter_cfg_mode()
 
     def check_cfg_mode(self):
         assert(self._channel is not None)
@@ -86,7 +87,7 @@ class CiscoXR(object):
     def enter_cfg_mode(self):
         assert(self._channel is not None)
         if not self.check_cfg_mode():
-            cmd = "configure terminal\n"
+            cmd = "configure\n"
             self.execute_command(cmd, 1)
 
     def execute_command(self, command, read_delay=1):

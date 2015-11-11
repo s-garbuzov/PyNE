@@ -1,23 +1,22 @@
 """
-BrocadeVRouter class
+CiscoIOS class
 """
 
-
 # this package local modules
-from Module8.cmd_multiprocessing.channels.ssh_channel import SSHChannel
-from Module8.cmd_multiprocessing.channels.telnet_channel import TELNETChannel
+from Module8.sample_project.channels.ssh_channel import SSHChannel
+from Module8.sample_project.channels.telnet_channel import TELNETChannel
 
 
-class BrocadeVRouter(object):
-    """Brocade vRouter device with device specific methods."""
+class CiscoIOS(object):
+    """Cisco IOS device with device specific methods."""
 
     def __init__(self, **kwargs):
         """Allocate and return a new instance object."""
 
         # Initialize this class attributes
         self._channel = None
-        self.vendor = "Brocade"
-        self.os_type = "Linux"
+        self.vendor = "Cisco"
+        self.os_type = "IOS"
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -27,7 +26,7 @@ class BrocadeVRouter(object):
 
     def get_version(self):
         status = True
-        output = "3.2.1R6"
+        output = "1.1.1"
         return status, output
 
     def get_vendor(self):
@@ -35,6 +34,7 @@ class BrocadeVRouter(object):
 
     def get_os_type(self):
         return self.os_type
+        return "IOS"
 
     def get_ipaddr(self):
         return self.ip_addr
@@ -55,7 +55,7 @@ class BrocadeVRouter(object):
             channel = TELNETChannel(self.ip_addr, self.port,
                                     self.username, self.password,
                                     self.login_prompt, self.password_prompt,
-                                    self.oper_prompt, self.config_prompt,
+                                    self.oper_prompt, self.admin_prompt,
                                     self.timeout, self.verbose)
         else:
             assert False, 'unexpected attribute value: %s' % self.channel
@@ -68,19 +68,27 @@ class BrocadeVRouter(object):
         if(self._channel is not None):
             self._channel.close()
 
+    def enable_privileged_commands(self):
+        assert(self._channel is not None)
+        cmd = "enable\n"
+        self._channel.send(cmd)
+        output = self._channel.recv(read_delay=1)
+        if(self.password_prompt in output):
+            password = "%s\n" % self.password
+            self._channel.send(password)
+            output = self._channel.recv(read_delay=1)
+
     def disable_paging(self):
         assert(self._channel is not None)
-        cmd = 'set terminal length 0\n'
+        cmd = 'terminal length 0\n'
         self.execute_command(cmd, 1)
-
-    def enable_privileged_commands(self):
-        self.enter_cfg_mode()
 
     def check_cfg_mode(self):
         assert(self._channel is not None)
         cmd = '\n'
         output = self.execute_command(cmd, 1)
-        if(self.config_prompt in output):
+        config_prompt = "(%s)%s" % ('config', self.admin_prompt)
+        if(config_prompt in output):
             return True
         else:
             return False
@@ -88,7 +96,7 @@ class BrocadeVRouter(object):
     def enter_cfg_mode(self):
         assert(self._channel is not None)
         if not self.check_cfg_mode():
-            cmd = "configure\n"
+            cmd = "configure terminal\n"
             self.execute_command(cmd, 1)
 
     def execute_command(self, command, read_delay=1):
