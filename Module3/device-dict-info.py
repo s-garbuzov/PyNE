@@ -18,7 +18,7 @@ def get_device_info():
     device_connect = namedtuple('device_connect', ['ip_address', 'username',
                                                    'password'])
     
-    device_info_filename = 'device-dictionary-info.txt'
+    device_info_filename = 'device-dict-info.txt'
     device_info_file_object = open(device_info_filename, 'r')
 
     for line in device_info_file_object:
