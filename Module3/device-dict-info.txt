@@ -1,0 +1,6 @@
+switch1,ios,10.3.21.5,user1,pass1
+switch2,ios,10.3.21.6,user2,pass2
+switch3,nx-os,10.3.21.7,user3,pass3
+switch4,nx-os,10.3.21.8,user4,pass4
+switch5,ios-xr,10.3.21.9,user5,pass5
+switch6,ios-xr,10.3.21.10,user6,pass6
