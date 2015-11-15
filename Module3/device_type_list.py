@@ -12,7 +12,7 @@
 def get_device_list():
     device_type_list = []
     device_list = []
-    device_list_filename = 'device-list-mutli-type.txt'
+    device_list_filename = 'device-type-list.txt'
     device_list_file_object = open(device_list_filename, 'r')
 
     for line in device_list_file_object:
