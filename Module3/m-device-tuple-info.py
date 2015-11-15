@@ -1,12 +1,5 @@
 #!/usr/bin/python
 
-# description:
-# this script does the following:
-#     reads a list of device connection information
-#     creates a named tuple of the information
-#     creates a list of the tuples
-#     prints the information out using named tuple syntax
-
 
 from collections import namedtuple
 
