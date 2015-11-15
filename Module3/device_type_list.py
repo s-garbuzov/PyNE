@@ -25,8 +25,8 @@ def get_device_list():
         
         except:
             device_type_list.append(os_type)
-            device_list_index = device_type_list.index(os_type)
             device_list.append([])
+            device_list_index = device_type_list.index(os_type)
             device_list[device_list_index].append(ip_address)
 
     device_list_file_object.close()
