@@ -16,8 +16,8 @@ def get_device_list():
     device_list_file_object = open(device_list_filename, 'r')
 
     for line in device_list_file_object:
+        line = line.rstrip()
         (os_type, ip_address) = line.split(',')
-        ip_address = ip_address.rstrip()
         
         try:
             device_list_index = device_type_list.index(os_type)
