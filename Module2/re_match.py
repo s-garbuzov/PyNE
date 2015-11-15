@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 # purpose:
-# test if a pattern matches an input string
+# test if a pattern matches an input string using RE match
+# note that RE match assumes '^', so the match expression must begin
+#     at the beginning of the line
 
 
 import re
