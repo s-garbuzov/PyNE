@@ -154,7 +154,7 @@ class ODLController(object):
 
     def schemas_list(self, node_id):
         """Return list of all YANG data model schemas supported
-        by the given node.
+        by the given NETCONF node.
 
         :param identifier: NETCONF node identifier
         """
@@ -196,7 +196,8 @@ class ODLController(object):
         return result
 
     def schema_info(self, node_id, shema_id, schema_version):
-        """Fetch content of the YANG data model schema from the given node.
+        """Fetch content of the YANG data model schema from
+        the given NETCONF node.
 
         :param identifier: NETCONF node identifier
         :param identifier: unique identifier of the schema (name of the
@@ -213,7 +214,6 @@ class ODLController(object):
         payload = {'input': {'identifier': shema_id,
                              'version': schema_version, 'format': 'yang'}}
         response = self._restconf_post(path, json.dumps(payload), headers)
-        print response
         if(response is None):
             result.status = http.SERVICE_UNAVAILABLE
             result.brief = "Connection error."
@@ -242,14 +242,16 @@ class ODLController(object):
         return result
 
     def topology_ids(self):
-        success = None
-        data = []
+        result = Result()
         path = ("operational/network-topology:network-topology")
         headers = {'accept': 'application/yang.data+json'}
         response = self._restconf_get(path, headers)
         if(response is None):
-            success = False
-            data = "Connection error"
+            result.status = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
         elif(response.status_code == 200):
             try:
                 if(response.headers.get('content-type') !=
@@ -260,23 +262,25 @@ class ODLController(object):
                 # Extract the data
                 topo_list = d['network-topology']['topology']
                 topo_list = d['network-topology']['topology']
+                data = []
                 for item in topo_list:
                     topo_id = item.get('topology-id')
                     if(topo_id is not None):
                         data.append(topo_id)
-                success = True
+                result.data = data
+                result.status = response.status_code
             except(Exception) as e:
-                success = False
-                data = ("Failed to parse response (%s)" % repr(e))
+                if(self._verbose):
+                    print("!!!Error: '%s'" % repr(e))
+                result.status = http.INTERNAL_SERVER_ERROR
+                result.brief = "Failed to parse HTTP response."
+                result.details = repr(e)
         else:
-            success = False
-            err_msg = "HTTP error %s" % response.status_code
-            if(response.content is not None):
-                data = "%s (%s)" % (err_msg, response.content)
-            else:
-                data = "%s (%s)" % (err_msg, "Internal server error")
+            result.status = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
 
-        return success, data
+        return result
 
     def topology_info(self, topo_id):
         success = None
@@ -312,15 +316,17 @@ class ODLController(object):
         return success, data
 
     def netconf_nodes_ids(self):
-        success = None
-        data = []
+        result = Result()
         path = ("operational/network-topology:network-topology/"
                 "topology/topology-netconf")
         headers = {'accept': 'application/yang.data+json'}
         response = self._restconf_get(path, headers)
         if(response is None):
-            success = False
-            data = "Connection error"
+            result.status = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
         elif(response.status_code == 200):
             try:
                 if(response.headers.get('content-type') !=
@@ -330,23 +336,25 @@ class ODLController(object):
                 d = json.loads(response.content)
                 # Extract the data
                 nodes_list = d['topology'][0]['node']
+                data = []
                 for item in nodes_list:
                     node_id = item.get('node-id')
                     if(node_id is not None):
                         data.append(node_id)
-                success = True
+                result.data = data
+                result.status = response.status_code
             except(Exception) as e:
-                success = False
-                data = ("Failed to parse response (%s)" % repr(e))
+                if(self._verbose):
+                    print("!!!Error: '%s'" % repr(e))
+                result.status = http.INTERNAL_SERVER_ERROR
+                result.brief = "Failed to parse HTTP response."
+                result.details = repr(e)
         else:
-            success = False
-            err_msg = "HTTP error %s" % response.status_code
-            if(response.content is not None):
-                data = "%s (%s)" % (err_msg, response.content)
-            else:
-                data = "%s (%s)" % (err_msg, "Internal server error")
+            result.status = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
 
-        return success, data
+        return result
 
     def netconf_node_mount(self, node):
         success = None
@@ -576,19 +584,6 @@ if __name__ == '__main__':
     """
 
     """
-    success, data = ctrl.netconf_device_ids()
-    if(success):
-        assert(isinstance(data, list))
-        print "\n".strip()
-        print ("NETCONF Nodes Identifiers:")
-        for item in data:
-            print "  '%s'" % item
-        print "\n".strip()
-    else:
-        print("!!!Error, reason: [%s]" % data)
-    """
-
-    """
     topo_id = "topology-netconf"
     success, data = ctrl.topology_info(topo_id)
     if(success):
@@ -613,17 +608,3 @@ if __name__ == '__main__':
     else:
         print("!!!Error, reason: [%s]" % data)
     """
-
-    result = ctrl.schemas_list()
-    print("\n").strip()
-    if(result.status == http.OK):
-        data = result.data
-        assert(isinstance(data, list))
-        print "YANG data model schemas:"
-        print json.dumps(data, default=lambda o: o.__dict__,
-                         sort_keys=True, indent=4)
-        print "\n".strip()
-    else:
-        print("!!!Error, reason: %s" % result.brief)
-#        print("!!!Error, reason: %s" % result.details)
-    print("\n").strip()

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """
-Sample script that requests Controller to return the content
-of a particular YANG data model schema.
+Sample script that requests Controller to return list of topology identifiers.
 """
 
 # Python standard library modules
@@ -20,17 +19,16 @@ if __name__ == "__main__":
     CTRL_PSWD = "admin"
     ctrl = ODLController(CTRL_IP_ADDR, CTRL_HTTP_PORT, CTRL_UNAME, CTRL_PSWD)
 
-    node_id = 'controller-config'
-    schema_id = "network-topology"
-    schema_version = "2013-10-21"
-    result = ctrl.schema_info(node_id, schema_id, schema_version)
+    result = ctrl.topology_ids()
     print("\n").strip()
     if(result.status == http.OK):
-        print("Controller : '%s:%s'" % (ctrl.ip_addr, ctrl.port))
-        print("Node ID    : '%s'" % node_id)
-        print("YANG model : '%s@%s'" % (schema_id, schema_version))
+        assert(isinstance(result.data, list))
+        print("Controller: '%s:%s'" % (ctrl.ip_addr, ctrl.port))
         print "\n".strip()
-        print result.data
+        print ("Network Topology Identifiers:")
+        print "\n".strip()
+        for item in result.data:
+            print "  '%s'" % item
     else:
         print("!!!Error, reason: %s" % result.brief)
 #        print("!!!Error, reason: %s" % result.details)

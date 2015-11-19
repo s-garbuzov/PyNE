@@ -1,6 +1,6 @@
 
 class NETCONFNodeTopoInfo(object):
-    """Helper class that used to parse NETCONF node information
+    """Helper class that is used to parse NETCONF node information
     obtained from the Controller's topologies data tree"""
     def __init__(self, **kwargs):
         prefix = "netconf-node-topology:"
