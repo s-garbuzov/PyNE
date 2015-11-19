@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Sample script that determines NETCONF device configuration (mounted/unmounted)
-status on the Controller
+Sample script that requests Controller to return the content
+of a particular YANG model schema.
 """
 
 # Python standard library modules
@@ -20,13 +20,18 @@ if __name__ == "__main__":
     CTRL_PSWD = "admin"
     ctrl = ODLController(CTRL_IP_ADDR, CTRL_HTTP_PORT, CTRL_UNAME, CTRL_PSWD)
 
-    NC_NODE_ID = "vRouter"
-    result = ctrl.netconf_node_is_mounted(NC_NODE_ID)
+    node_id = 'controller-config'
+    schema_id = "network-topology"
+    schema_version = "2013-10-21"
+    result = ctrl.schema_info(node_id, schema_id, schema_version)
     print("\n").strip()
-    if(result.opcode == http.OK):
-        print("'%s' is mounted" % NC_NODE_ID)
-    elif(result.opcode == http.NOT_FOUND):
-        print("'%s' is not mounted" % NC_NODE_ID)
+    if(result.status == http.OK):
+        print "\n".strip()
+        print("Controller : '%s:%s'" % (ctrl.ip_addr, ctrl.port))
+        print("Node ID    : '%s'" % node_id)
+        print("YANG model : '%s@%s'" % (schema_id, schema_version))
+        print "\n".strip()
+        print result.data
     else:
         print("!!!Error, reason: %s" % result.brief)
 #        print("!!!Error, reason: %s" % result.details)

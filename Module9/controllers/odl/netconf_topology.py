@@ -4,11 +4,9 @@ class NETCONFNodeTopoInfo(object):
     obtained from the Controller's topologies data tree"""
     def __init__(self, **kwargs):
         prefix = "netconf-node-topology:"
-        print type(kwargs)
         for k, v in kwargs.items():
             if(isinstance(k, basestring)):
                 k = k.replace(prefix, "").replace("-", "_")
-#            print "++%s" % k
             setattr(self, k, v)
 
     # NOTE: Above loop sets properties of this class based on the key names

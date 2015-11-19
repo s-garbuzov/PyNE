@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+"""
+class representing Opendaylight Controller
+"""
+
+# Python standard library modules
+import httplib as http
+import xml.etree.ElementTree as xml
+
 # third-party modules
 import json
 from requests import (request, RequestException)
@@ -8,25 +16,23 @@ from requests.auth import HTTPBasicAuth
 # this package local modules
 from Module9.controllers.odl.netconf_topology import NETCONFNodeTopoInfo
 from Module9.devices.netconf.common import NETCONFDevice
+from Module9.utils.result import Result
 
 
 class ODLController(object):
-    """Represents an instance of Opendaylight Controller."""
+    """An instance of the ODLController class."""
 
     def __init__(self, ip_addr, http_port,
-                 admin_name, admin_password, timeout=5):
-        """ODLController object constructor.
+                 admin_name, admin_password,
+                 timeout=3, verbose=False):
+        """The constructor of the ODLController class.
 
-        :param ip_addr: (required)
-            IP address of the Controller.
-        :param http_port: (required)
-            HTTP port number on the Controller.
-        :param admin_name: (required)
-            administrative user login name.
-        :param admin_password: (required)
-            administrative user login password.
-        :param timeout: (optional)
-            communication timeout.
+        :param ip_addr: IP address of the Controller.
+        :param http_port: HTTP port number on the Controller.
+        :param admin_name: administrative user login name.
+        :param admin_password: administrative user login password.
+        :param timeout: communication timeout.
+        :param verbose: enables errors log tracing.
         """
 
         self._ip_addr = ip_addr
@@ -34,14 +40,17 @@ class ODLController(object):
         self._uname = admin_name
         self._pswd = admin_password
         self._timeout = timeout
+        self._verbose = verbose
+
+    @property
+    def ip_addr(self):
+        return self._ip_addr
+
+    @property
+    def port(self):
+        return self._http_port
 
     def description(self):
-        '''
-        d = {'ip_addr': self._ip_addr, 'http_port': self._http_port,
-             'admin_name': self._uname, 'admin_password': self._pswd,
-             'timeout': self._timeout}
-        return d
-        '''
         s = ("ip_addr={}, http_port={}, "
              "admin_name={}, admon_password={}, "
              "timeout={}").format(self._ip_addr, self._http_port,
@@ -59,8 +68,8 @@ class ODLController(object):
         """Sends a RESTCONF GET request to the Controller
         and returns the result of communication.
         NOTE: RESTCONF protocol uses HTTP methods to identify
-             the Create, Retrieve, Update, Delete operation
-             for a particular resource.
+              the Create, Retrieve, Update, Delete operation
+              for a particular resource.
         """
         url_prefix = ("http://{}:{}/restconf").format(self._ip_addr,
                                                       self._http_port)
@@ -74,36 +83,17 @@ class ODLController(object):
                                    auth=HTTPBasicAuth(self._uname, self._pswd),
                                    timeout=self._timeout)
             return response
-            """
-            method = 'GET'
-            response = request(method, url, data=data, headers=headers,
-                               auth=HTTPBasicAuth(self._uname, self._pswd),
-                               timeout=self._timeout)
-            print "<<<<<<<<"
-            print vars(response)
-            print response.status_code
-#            print requests.codes
-            print ">>>>>>>>"
-            response.raise_for_status()
-            return response.content
-            """
-#        except (ConnectionError, Timeout) as e:
-#        # ConnectionError; Timeout; HTTPError, TooManyRedirects
-#        except (ConnectionError, Timeout, HTTPError, TooManyRedirects) as e:
-#            print("!!!Error: (%s)" % (e.message))
-#            print("!!!Error: (%s)" % (e.filename))
-#            print("!!!Error: " + repr(e))
-#            print("!!!Error: type=%s, reason %s" % (type(e), dir(e)))
         except RequestException as e:
-            print("!!!Error: (%s)" % (repr(e)))
+            if(self._verbose):
+                print("!!!Error: (%s)" % (repr(e)))
             return None
 
     def _restconf_post(self, path, payload=None, headers=None):
         """Sends a RESTCONF POST request to the Controller
         and returns the result of communication.
         NOTE: RESTCONF protocol uses HTTP methods to identify
-             the Create, Retrieve, Update, Delete operation
-             for a particular resource.
+              the Create, Retrieve, Update, Delete operation
+              for a particular resource.
         """
         url_prefix = ("http://{}:{}/restconf").format(self._ip_addr,
                                                       self._http_port)
@@ -119,15 +109,16 @@ class ODLController(object):
                                    timeout=self._timeout)
             return response
         except RequestException as e:
-            print("!!!Error: (%s)" % (repr(e)))
+            if(self._verbose):
+                print("!!!Error: (%s)" % (repr(e)))
             return None
 
     def _restconf_put(self, path, payload=None, headers=None):
         """Sends a RESTCONF PUT request to the Controller
         and returns the result of communication.
         NOTE: RESTCONF protocol uses HTTP methods to identify
-             the Create, Retrieve, Update, Delete operation
-             for a particular resource.
+              the Create, Retrieve, Update, Delete operation
+              for a particular resource.
         """
         url_prefix = ("http://{}:{}/restconf").format(self._ip_addr,
                                                       self._http_port)
@@ -141,8 +132,8 @@ class ODLController(object):
         """Sends a RESTCONF DELETE request to the Controller
         and returns the result of communication.
         NOTE: RESTCONF protocol uses HTTP methods to identify
-             the Create, Retrieve, Update, Delete operation
-             for a particular resource.
+              the Create, Retrieve, Update, Delete operation
+              for a particular resource.
         """
         url_prefix = ("http://{}:{}/restconf").format(self._ip_addr,
                                                       self._http_port)
@@ -157,22 +148,29 @@ class ODLController(object):
                                    timeout=self._timeout)
             return response
         except RequestException as e:
-            print("!!!Error: (%s)" % (repr(e)))
+            if(self._verbose):
+                print("!!!Error: (%s)" % (repr(e)))
             return None
 
-    def schemas_list(self):
+    def schemas_list(self, node_id):
         """Return list of all YANG data model schemas supported
-        by the Controller."""
-        success = None
-        data = None
+        by the given node.
+
+        :param identifier: NETCONF node identifier
+        """
+        result = Result()
         path = ("operational/opendaylight-inventory:nodes/"
-                "node/controller-config/yang-ext:mount/"
-                "ietf-netconf-monitoring:netconf-state/schemas")
+                "node/{}/yang-ext:mount/"
+                "ietf-netconf-monitoring:netconf-state/"
+                "schemas").format(node_id)
         headers = {'accept': 'application/yang.data+json'}
         response = self._restconf_get(path, headers)
         if(response is None):
-            success = False
-            data = "Connection error"
+            result.status = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
         elif(response.status_code == 200):
             try:
                 if(response.headers.get('content-type') !=
@@ -182,31 +180,66 @@ class ODLController(object):
                 d = json.loads(response.content)
                 # Extract the data
                 data = d['schemas']['schema']
-                success = True
+                result.data = data
+                result.status = response.status_code
             except(Exception) as e:
-                success = False
-                data = ("Failed to parse response (%s)" % repr(e))
+                if(self._verbose):
+                    print("!!!Error: '%s'" % repr(e))
+                result.opcode = http.INTERNAL_SERVER_ERROR
+                result.brief = "Failed to parse HTTP response."
+                result.details = repr(e)
         else:
-            success = False
-            err_msg = "HTTP error %s" % response.status_code
-            if(response.content is not None):
-                data = "%s (%s)" % (err_msg, response.content)
-            else:
-                data = "%s (%s)" % (err_msg, "Internal server error")
+            result.opcode = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
 
-        return success, data
+        return result
 
-    def schema_info(self, identifier, version):
-        """Return detailed information about given YANG data model schema.
+    def schema_info(self, node_id, shema_id, schema_version):
+        """Fetch content of the YANG data model schema from the given node.
 
-        :param identifier:
-            unique identifier of the schema (name of the YANG module
-            or submodule)
-        :param str version:
-            version of the schema (value of the revision statement in
-            the YANG module or submodule)
+        :param identifier: NETCONF node identifier
+        :param identifier: unique identifier of the schema (name of the
+            YANG module or submodule)
+        :param str version:  version of the schema (value of the revision
+            statement in the YANG module or submodule)
         """
-        pass
+        result = Result()
+        path = ("operations/opendaylight-inventory:nodes/"
+                "node/{}/yang-ext:mount/"
+                "ietf-netconf-monitoring:get-schema").format(node_id)
+        headers = {'content-type': 'application/yang.data+json',
+                   'accept': 'application/xml'}
+        payload = {'input': {'identifier': shema_id,
+                             'version': schema_version, 'format': 'yang'}}
+        response = self._restconf_post(path, json.dumps(payload), headers)
+        print response
+        if(response is None):
+            result.status = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
+        elif(response.status_code == 200):
+            print response.headers.get('content-type')
+            try:
+                if(response.headers.get('content-type') != 'application/xml'):
+                    raise ValueError("unexpected response content encoding")
+                root = xml.fromstring(response.content)
+                result.data = "".join(root.itertext())
+                result.status = response.status_code
+            except(Exception) as e:
+                if(self._verbose):
+                    print("!!!Error: '%s'" % repr(e))
+                result.opcode = http.INTERNAL_SERVER_ERROR
+                result.brief = "Failed to parse HTTP response."
+                result.details = repr(e)
+        else:
+            result.opcode = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
+
+        return result
 
     def topology_ids(self):
         success = None
@@ -371,33 +404,22 @@ class ODLController(object):
 
         return success, data
 
-    def netconf_node_is_connected(self, node_id):
-        status = False
-        success, data = self.netconf_node_topo_info(node_id)
-        if(success):
-            assert(isinstance(data, NETCONFNodeTopoInfo))
-            status = data.connected
-        return status
-
     def netconf_node_is_mounted(self, node_id):
-        status = False
-        success, data = self.netconf_node_topo_info(node_id)
-        if(success):
-            assert(isinstance(data, NETCONFNodeTopoInfo))
-            status = True
-        return status
+        return self.netconf_node_topo_info(node_id)
 
     def netconf_node_topo_info(self, node_id):
-        success = None
-        data = None
+        result = Result()
         path = ("operational/network-topology:network-topology/"
                 "topology/topology-netconf/node/{}").format(node_id)
         headers = {'accept': 'application/yang.data+json'}
         response = self._restconf_get(path, headers)
         if(response is None):
-            success = False
-            data = "Connection error"
-        elif(response.status_code == 200):
+            result.opcode = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
+        elif(response.status_code == http.OK):
             try:
                 if(response.headers.get('content-type') !=
                         'application/yang.data+json'):
@@ -405,21 +427,22 @@ class ODLController(object):
                 # Deserialize response JSON content to Python object
                 d = json.loads(response.content)
                 node = d['node'][0]
-                print node.keys()
                 data = NETCONFNodeTopoInfo(**node)
-                success = True
+                result.data = data
+                result.opcode = response.status_code
             except(Exception) as e:
-                success = False
-                data = ("Failed to parse response (%s)" % repr(e))
+                if(self._verbose):
+                    print("!!!Error: '%s'" % repr(e))
+                result.opcode = http.INTERNAL_SERVER_ERROR
+                result.brief = "Failed to parse HTTP response."
+                result.details = repr(e)
         else:
-            success = False
-            err_msg = "HTTP error %s" % response.status_code
-            if(response.content is not None):
-                data = "%s (%s)" % (err_msg, response.content)
-            else:
-                data = "%s (%s)" % (err_msg, "Internal server error")
+            result.opcode = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
 
-        return success, data
+        return result
+
 
 class NETCONFMountRequest(object):
     """Helper class that used for RESTCONF request content preparation
@@ -516,6 +539,7 @@ if __name__ == '__main__':
         print("!!!Error, reason: [%s]" % data)
     """
 
+    """
     success, nc_node_info = ctrl.netconf_device_info(nc_device.node_id)
     data = nc_node_info
     if(success):
@@ -540,12 +564,7 @@ if __name__ == '__main__':
 #        print "\n".strip()
     else:
         print("!!!Error, reason: [%s]" % data)
-
-
-
-
-
-
+    """
 
     """
     success, data = ctrl.netconf_device_unmount(nc_device.node_id)
@@ -594,14 +613,17 @@ if __name__ == '__main__':
     else:
         print("!!!Error, reason: [%s]" % data)
     """
-    """
-    success, data = ctrl.schemas_list()
-    if(success):
+
+    result = ctrl.schemas_list()
+    print("\n").strip()
+    if(result.status == http.OK):
+        data = result.data
         assert(isinstance(data, list))
         print "YANG data model schemas:"
         print json.dumps(data, default=lambda o: o.__dict__,
                          sort_keys=True, indent=4)
         print "\n".strip()
     else:
-        print("!!!Error, reason: [%s]" % data)
-    """
+        print("!!!Error, reason: %s" % result.brief)
+#        print("!!!Error, reason: %s" % result.details)
+    print("\n").strip()

@@ -5,8 +5,12 @@ Sample script that determines NETCONF device connection status
 on the Controller
 """
 
+# Python standard library modules
+import httplib as http
+
 # this package local modules
 from Module9.controllers.odl.controller import ODLController
+
 
 if __name__ == "__main__":
 
@@ -17,6 +21,17 @@ if __name__ == "__main__":
     ctrl = ODLController(CTRL_IP_ADDR, CTRL_HTTP_PORT, CTRL_UNAME, CTRL_PSWD)
 
     NC_NODE_ID = "vRouter"
-    status = ctrl.netconf_node_is_connected(NC_NODE_ID)
-    print("NETCONF device '%s' is %s" %
-          (NC_NODE_ID, 'connected' if(status) else 'not connected'))
+    result = ctrl.netconf_node_is_mounted(NC_NODE_ID)
+    print("\n").strip()
+    if(result.opcode == http.OK):
+        node = result.data
+        if(node.connected):
+            print("'%s' is connected" % NC_NODE_ID)
+        else:
+            print("'%s' is not connected" % NC_NODE_ID)
+    elif(result.opcode == http.NOT_FOUND):
+        print("'%s' is not found" % NC_NODE_ID)
+    else:
+        print("!!!Error, reason: %s" % result.brief)
+#        print("!!!Error, reason: %s" % result.details)
+    print("\n").strip()
