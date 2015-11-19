@@ -2,7 +2,7 @@
 
 """
 Sample script that requests Controller to return the content
-of a particular YANG model schema.
+of a particular YANG data model schema.
 """
 
 # Python standard library modules

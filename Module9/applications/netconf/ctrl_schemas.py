@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Sample script that retrieves list of YANG model schemas
+Sample script that retrieves list of YANG data model schemas
 supported by the Controller.
 """
 
