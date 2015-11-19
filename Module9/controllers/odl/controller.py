@@ -185,11 +185,11 @@ class ODLController(object):
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
-                result.opcode = http.INTERNAL_SERVER_ERROR
+                result.status = http.INTERNAL_SERVER_ERROR
                 result.brief = "Failed to parse HTTP response."
                 result.details = repr(e)
         else:
-            result.opcode = response.status_code
+            result.status = response.status_code
             result.brief = http.responses[response.status_code]
             result.details = response.content
 
@@ -231,11 +231,11 @@ class ODLController(object):
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
-                result.opcode = http.INTERNAL_SERVER_ERROR
+                result.status = http.INTERNAL_SERVER_ERROR
                 result.brief = "Failed to parse HTTP response."
                 result.details = repr(e)
         else:
-            result.opcode = response.status_code
+            result.status = response.status_code
             result.brief = http.responses[response.status_code]
             result.details = response.content
 
@@ -414,7 +414,7 @@ class ODLController(object):
         headers = {'accept': 'application/yang.data+json'}
         response = self._restconf_get(path, headers)
         if(response is None):
-            result.opcode = http.SERVICE_UNAVAILABLE
+            result.status = http.SERVICE_UNAVAILABLE
             result.brief = "Connection error."
             msg = ("Connection to the '%s:%s' server has failed." %
                    (self._ip_addr, self._http_port))
@@ -429,15 +429,15 @@ class ODLController(object):
                 node = d['node'][0]
                 data = NETCONFNodeTopoInfo(**node)
                 result.data = data
-                result.opcode = response.status_code
+                result.status = response.status_code
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
-                result.opcode = http.INTERNAL_SERVER_ERROR
+                result.status = http.INTERNAL_SERVER_ERROR
                 result.brief = "Failed to parse HTTP response."
                 result.details = repr(e)
         else:
-            result.opcode = response.status_code
+            result.status = response.status_code
             result.brief = http.responses[response.status_code]
             result.details = response.content
 
