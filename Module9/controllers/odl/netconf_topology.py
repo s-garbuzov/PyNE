@@ -3,7 +3,7 @@ Helper classes for parsing NETCONF topology information.
 """
 
 # this package local modules
-from Module9.utils.debugging import dbg_trace_print
+from Module9.utils.utilities import dbg_trace_print
 
 
 class NETCONFTopoInfo(object):
