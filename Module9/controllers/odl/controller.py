@@ -14,7 +14,9 @@ from requests import (request, RequestException)
 from requests.auth import HTTPBasicAuth
 
 # this package local modules
-from Module9.controllers.odl.netconf_topology import NETCONFNodeTopoInfo
+from Module9.controllers.odl.netconf_topology import (NETCONFTopoInfo,
+                                                      NETCONFNodeTopoInfo)
+from Module9.controllers.odl.netconf_mount import NETCONFMountRequest
 from Module9.devices.netconf.common import NETCONFDevice
 from Module9.utils.result import Result
 
@@ -173,7 +175,7 @@ class ODLController(object):
             msg = ("Connection to the '%s:%s' server has failed." %
                    (self._ip_addr, self._http_port))
             result.details = msg
-        elif(response.status_code == 200):
+        elif(response.status_code == http.OK):
             try:
                 if(response.headers.get('content-type') !=
                         'application/yang.data+json'):
@@ -183,7 +185,7 @@ class ODLController(object):
                 # Extract the data
                 data = d['schemas']['schema']
                 result.data = data
-                result.status = response.status_code
+                result.status = http.OK
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
@@ -222,14 +224,14 @@ class ODLController(object):
             msg = ("Connection to the '%s:%s' server has failed." %
                    (self._ip_addr, self._http_port))
             result.details = msg
-        elif(response.status_code == 200):
+        elif(response.status_code == http.OK):
             print response.headers.get('content-type')
             try:
                 if(response.headers.get('content-type') != 'application/xml'):
                     raise ValueError("unexpected response content encoding")
                 root = xml.fromstring(response.content)
                 result.data = "".join(root.itertext())
-                result.status = response.status_code
+                result.status = http.OK
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
@@ -254,7 +256,7 @@ class ODLController(object):
             msg = ("Connection to the '%s:%s' server has failed." %
                    (self._ip_addr, self._http_port))
             result.details = msg
-        elif(response.status_code == 200):
+        elif(response.status_code == http.OK):
             try:
                 if(response.headers.get('content-type') !=
                         'application/yang.data+json'):
@@ -270,7 +272,7 @@ class ODLController(object):
                     if(topo_id is not None):
                         data.append(topo_id)
                 result.data = data
-                result.status = response.status_code
+                result.status = http.OK
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
@@ -285,37 +287,41 @@ class ODLController(object):
         return result
 
     def topology_info(self, topo_id):
-        success = None
-        data = []
+        result = Result()
         path = ("operational/network-topology:network-topology/"
                 "topology/{}").format(topo_id)
         headers = {'accept': 'application/yang.data+json'}
+
         response = self._restconf_get(path, headers)
         if(response is None):
-            success = False
-            data = "Connection error"
-        elif(response.status_code == 200):
+            result.status = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
+        elif(response.status_code == http.OK):
             try:
                 if(response.headers.get('content-type') !=
                         'application/yang.data+json'):
                     raise ValueError("unexpected response content encoding")
                 # Deserialize response JSON content to Python object
                 d = json.loads(response.content)
-                # Extract the data
-                data = d['topology'][0]
-                success = True
+                topo = d['topology'][0]
+                data = NETCONFTopoInfo(**topo)
+                result.data = data
+                result.status = http.OK
             except(Exception) as e:
-                success = False
-                data = ("Failed to parse response (%s)" % repr(e))
+                if(self._verbose):
+                    print("!!!Error: '%s'" % repr(e))
+                result.status = http.INTERNAL_SERVER_ERROR
+                result.brief = "Failed to parse HTTP response."
+                result.details = repr(e)
         else:
-            success = False
-            err_msg = "HTTP error %s" % response.status_code
-            if(response.content is not None):
-                data = "%s (%s)" % (err_msg, response.content)
-            else:
-                data = "%s (%s)" % (err_msg, "Internal server error")
+            result.status = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
 
-        return success, data
+        return result
 
     def netconf_nodes_ids(self):
         result = Result()
@@ -439,7 +445,7 @@ class ODLController(object):
                 node = d['node'][0]
                 data = NETCONFNodeTopoInfo(**node)
                 result.data = data
-                result.status = response.status_code
+                result.status = http.OK
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
@@ -453,69 +459,6 @@ class ODLController(object):
 
         return result
 
-
-class NETCONFMountRequest(object):
-    """Helper class that used for RESTCONF request content preparation
-    for mounting NETCONF device on the Controller"""
-    def __init__(self, device_name, ip_addr, netconf_port,
-                 user_name, user_password):
-        _req_template = {
-            'name': None,
-            'odl-sal-netconf-connector-cfg:address': None,
-            'odl-sal-netconf-connector-cfg:port': None,
-            'odl-sal-netconf-connector-cfg:username': None,
-            'odl-sal-netconf-connector-cfg:password': None,
-            ('odl-sal-netconf-connector-cfg:'
-             'between-attempts-timeout-millis'): 2000,
-            'odl-sal-netconf-connector-cfg:max-connection-attempts': 0,
-            'odl-sal-netconf-connector-cfg:event-executor': {
-                'type': 'netty:netty-event-executor',
-                'name': 'global-event-executor'
-            },
-            'odl-sal-netconf-connector-cfg:binding-registry': {
-                'type': ('opendaylight-md-sal-binding:'
-                         'binding-broker-osgi-registry'),
-                'name': 'binding-osgi-broker'
-            },
-            'odl-sal-netconf-connector-cfg:processing-executor': {
-                'type': 'threadpool:threadpool',
-                'name': 'global-netconf-processing-executor'
-            },
-            'odl-sal-netconf-connector-cfg:client-dispatcher': {
-                'type': 'odl-netconf-cfg:netconf-client-dispatcher',
-                'name': 'global-netconf-dispatcher'
-            },
-            'odl-sal-netconf-connector-cfg:reconnect-on-changed-schema': True,
-            'odl-sal-netconf-connector-cfg:connection-timeout-millis': 20000,
-            'odl-sal-netconf-connector-cfg:dom-registry': {
-                'type': 'opendaylight-md-sal-dom:dom-broker-osgi-registry',
-                'name': 'dom-broker'},
-            'odl-sal-netconf-connector-cfg:sleep-factor': 1.5,
-            'type': 'odl-sal-netconf-connector-cfg:sal-netconf-connector',
-            'odl-sal-netconf-connector-cfg:tcp-only': False
-        }
-
-        _req_template['name'] = device_name
-        _req_template['odl-sal-netconf-connector-cfg:address'] = ip_addr
-        _req_template['odl-sal-netconf-connector-cfg:port'] = netconf_port
-        _req_template['odl-sal-netconf-connector-cfg:username'] = user_name
-        _req_template['odl-sal-netconf-connector-cfg:password'] = user_password
-        self.module = [_req_template]
-
-    def _json(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
-    @property
-    def payload(self):
-        return self._json()
-
-    @property
-    def path(self):
-        path = ("config/network-topology:network-topology/"
-                "topology/topology-netconf/node/controller-config/"
-                "yang-ext:mount/config:modules")
-        return path
 
 if __name__ == '__main__':
     IP_ADDR = "172.22.18.70"

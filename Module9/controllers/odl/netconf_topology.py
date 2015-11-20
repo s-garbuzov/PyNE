@@ -1,7 +1,47 @@
+"""
+Helper classes for parsing NETCONF topology information.
+"""
+
+
+class NETCONFTopoInfo(object):
+    """Class that is used to parse NETCONF topology information
+    obtained from the Controller's topologies data tree."""
+    def __init__(self, **kwargs):
+        self.nodes = []
+        prefix = "netconf-node-topology:"
+        for k, v in kwargs.items():
+            if(isinstance(k, basestring)):
+                k = k.replace(prefix, "").replace("-", "_")
+            if(k == 'node'):
+                for n in v:
+                    data = NETCONFNodeTopoInfo(**n)
+                    self.nodes.append(data)
+            else:
+                setattr(self, k, v)
+
+    @property
+    def identifier(self):
+        if hasattr(self, 'topology_id'):
+            return self.topology_id
+        else:
+            assert(False), "[NETCONFTopoInfo] missing expected attribute"
+            return None
+
+    @property
+    def nodes_ids(self):
+        node_ids = []
+        for node in self.nodes:
+            node_ids.append(node.identifier)
+        return node_ids
+
+    @property
+    def nodes_list(self):
+        return self.nodes
+
 
 class NETCONFNodeTopoInfo(object):
-    """Helper class that is used to parse NETCONF node information
-    obtained from the Controller's topologies data tree"""
+    """Class that is used to parse NETCONF node information
+    obtained from the Controller's topologies data tree."""
     def __init__(self, **kwargs):
         prefix = "netconf-node-topology:"
         for k, v in kwargs.items():

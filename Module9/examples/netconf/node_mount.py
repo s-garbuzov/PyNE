@@ -42,17 +42,21 @@ if __name__ == "__main__":
     else:
         print ("\n").strip()
         print("!!!Error, reason: %s" % result.brief)
+        print ("\n").strip()
         exit(1)
 
     if(node_is_mounted):
         print("\n").strip()
         print("'%s' is already mounted" % NC_NODE_ID)
+        print ("\n").strip()
     else:
         result = ctrl.netconf_node_mount(nc_device)
         if(result.status == http.OK):
             print("\n").strip()
             print ("Mounted '%s' device" % nc_device.node_id)
+            print ("\n").strip()
         else:
             print("\n").strip()
             print("!!!Error, reason: %s" % result.brief)
+            print ("\n").strip()
             exit(1)

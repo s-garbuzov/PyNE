@@ -40,12 +40,15 @@ if __name__ == "__main__":
     if(node_is_mounted is False):
         print("\n").strip()
         print("'%s' is not mounted" % NC_NODE_ID)
+        print("\n").strip()
     else:
         result = ctrl.netconf_node_unmount(NC_NODE_ID)
         if(result.status == http.OK):
             print("\n").strip()
             print ("Unmounted '%s' device" % NC_NODE_ID)
+            print("\n").strip()
         else:
             print("\n").strip()
             print("!!!Error, reason: %s" % result.brief)
+            print("\n").strip()
             exit(1)

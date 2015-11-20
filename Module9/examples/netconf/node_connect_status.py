@@ -23,15 +23,18 @@ if __name__ == "__main__":
     NC_NODE_ID = "vRouter"
     result = ctrl.netconf_node_is_mounted(NC_NODE_ID)
     print("\n").strip()
-    if(result.opcode == http.OK):
+    if(result.status == http.OK):
         node = result.data
         if(node.connected):
             print("'%s' is connected" % NC_NODE_ID)
         else:
             print("'%s' is not connected" % NC_NODE_ID)
-    elif(result.opcode == http.NOT_FOUND):
+        print("\n").strip()
+    elif(result.status == http.NOT_FOUND):
         print("'%s' is not found" % NC_NODE_ID)
+        print("\n").strip()
     else:
         print("!!!Error, reason: %s" % result.brief)
 #        print("!!!Error, reason: %s" % result.details)
-    print("\n").strip()
+        print("\n").strip()
+        exit(1)

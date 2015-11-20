@@ -22,9 +22,7 @@ if __name__ == "__main__":
 
     NC_NODE_ID = "vRouter"
     result = ctrl.netconf_node_topo_info(NC_NODE_ID)
-    print("\n").strip()
     if(result.status == http.OK):
-        print result.data
         assert(isinstance(result.data, NETCONFNodeTopoInfo))
         device_info = result.data
         print "\n".strip()
@@ -50,7 +48,14 @@ if __name__ == "__main__":
             for item in clist:
                 print "      %s" % item
             print "\n".strip()
+        print "\n".strip()
+    elif(result.status == http.NOT_FOUND):
+        print("\n").strip()
+        print("'%s' is not found" % NC_NODE_ID)
+        print("\n").strip()
     else:
+        print("\n").strip()
         print("!!!Error, reason: %s" % result.brief)
+        print("\n").strip()
 #        print("!!!Error, reason: %s" % result.details)
-    print("\n").strip()
+        exit(1)
