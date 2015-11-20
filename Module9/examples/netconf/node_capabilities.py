@@ -27,13 +27,13 @@ if __name__ == "__main__":
     print("Controller: '%s:%s'" % (ctrl.ip_addr, ctrl.port))
     print("\n").strip()
     print("  NETCONF Node '%s'" % NC_NODE_ID)
-    print("\n").strip()
 
     result = ctrl.netconf_node_topo_info(NC_NODE_ID)
     if(result.status == http.OK):
         assert(isinstance(result.data, NETCONFNodeTopoInfo))
         device_info = result.data
         clist = device_info.capabilities_available
+        print("\n").strip()
         if(clist):
             print("    Available Capabilities:")
             print("\n").strip()
