@@ -50,7 +50,9 @@ class ODLController(object):
     def port(self):
         return self._http_port
 
+    @property
     def description(self):
+        """The Controller's essential attributes."""
         s = ("ip_addr={}, http_port={}, "
              "admin_name={}, admon_password={}, "
              "timeout={}").format(self._ip_addr, self._http_port,
@@ -327,7 +329,7 @@ class ODLController(object):
             msg = ("Connection to the '%s:%s' server has failed." %
                    (self._ip_addr, self._http_port))
             result.details = msg
-        elif(response.status_code == 200):
+        elif(response.status_code == http.OK):
             try:
                 if(response.headers.get('content-type') !=
                         'application/yang.data+json'):
@@ -342,7 +344,7 @@ class ODLController(object):
                     if(node_id is not None):
                         data.append(node_id)
                 result.data = data
-                result.status = response.status_code
+                result.status = http.OK
             except(Exception) as e:
                 if(self._verbose):
                     print("!!!Error: '%s'" % repr(e))
@@ -357,8 +359,7 @@ class ODLController(object):
         return result
 
     def netconf_node_mount(self, node):
-        success = None
-        data = None
+        result = Result()
         assert(isinstance(node, NETCONFDevice))
         mr = NETCONFMountRequest(node.node_id,
                                  node.ip_addr,
@@ -367,28 +368,28 @@ class ODLController(object):
                                  node.admin_password)
         path = mr.path
         payload = mr.payload
-        headers = {'content-type': 'application/yang.data+json',
-                   'accept': 'text/json, text/html, application/xml, */*'}
+        headers = {'content-type': 'application/yang.data+json'}
+
         response = self._restconf_post(path, payload, headers)
         if(response is None):
-            success = False
-            data = "Connection error"
-        elif(response.status_code == 200 or response.status_code == 204):
-            success = True
-            data = "Success"
+            result.status = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
+        elif(response.status_code == http.OK or
+             response.status_code == http.NO_CONTENT):
+            result.status = http.OK
+            result.brief = "Success."
         else:
-            success = False
-            err_msg = "HTTP error %s" % response.status_code
-            if(response.content is not None):
-                data = "%s (%s)" % (err_msg, response.content)
-            else:
-                data = "%s (%s)" % (err_msg, "Internal server error")
+            result.status = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
 
-        return success, data
+        return result
 
     def netconf_node_unmount(self, node_id):
-        success = None
-        data = None
+        result = Result()
         path = ("config/network-topology:network-topology/"
                 "topology/topology-netconf/node/controller-config/"
                 "yang-ext:mount/config:modules/"
@@ -397,20 +398,21 @@ class ODLController(object):
 
         response = self._restconf_delete(path)
         if(response is None):
-            success = False
-            data = "Connection error"
-        elif(response.status_code == 200 or response.status_code == 204):
-            success = True
-            data = "Success"
+            result.status = http.SERVICE_UNAVAILABLE
+            result.brief = "Connection error."
+            msg = ("Connection to the '%s:%s' server has failed." %
+                   (self._ip_addr, self._http_port))
+            result.details = msg
+        elif(response.status_code == http.OK or
+             response.status_code == http.NO_CONTENT):
+            result.status = http.OK
+            result.brief = "Success."
         else:
-            success = False
-            err_msg = "HTTP error %s" % response.status_code
-            if(response.content is not None):
-                data = "%s (%s)" % (err_msg, response.content)
-            else:
-                data = "%s (%s)" % (err_msg, "Internal server error")
+            result.status = response.status_code
+            result.brief = http.responses[response.status_code]
+            result.details = response.content
 
-        return success, data
+        return result
 
     def netconf_node_is_mounted(self, node_id):
         return self.netconf_node_topo_info(node_id)
@@ -592,18 +594,6 @@ if __name__ == '__main__':
         print ("Network Topology Info - '%s':" % topo_id)
         print json.dumps(data, default=lambda o: o.__dict__,
                          sort_keys=True, indent=4)
-        print "\n".strip()
-    else:
-        print("!!!Error, reason: [%s]" % data)
-    """
-
-    """
-    success, data = ctrl.topology_ids()
-    if(success):
-        assert(isinstance(data, list))
-        print ("Network Topology Identifiers:")
-        for item in data:
-            print "  '%s'" % item
         print "\n".strip()
     else:
         print("!!!Error, reason: [%s]" % data)
