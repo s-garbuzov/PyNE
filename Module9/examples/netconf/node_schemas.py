@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Sample script that retrieves list of YANG data model schemas
-supported by the Controller.
+Sample script that request Controller to return list of
+YANG data model schemas supported by given NETCONF device.
 """
 
 # Python standard library modules
@@ -24,6 +24,35 @@ if __name__ == "__main__":
     ctrl = ODLController(CTRL_IP_ADDR, CTRL_HTTP_PORT, CTRL_UNAME, CTRL_PSWD)
 
     NC_NODE_ID = 'vRouter'
+
+    result = ctrl.netconf_node_is_mounted(NC_NODE_ID)
+    node_is_mounted = False
+    node_is_connected = False
+    if(result.status == http.OK):
+        node_is_mounted = True
+        node = result.data
+        if(node.connected):
+            node_is_connected = True
+    elif(result.status == http.NOT_FOUND):
+        node_is_mounted = False
+    else:
+        print("\n").strip()
+        print("!!!Error, reason: %s" % result.brief)
+        print("\n").strip()
+        exit(1)
+
+    if(node_is_mounted is False):
+        print("\n").strip()
+        print("'%s' is not mounted" % NC_NODE_ID)
+        print("\n").strip()
+        exit(1)
+
+    if(node_is_connected is False):
+        print("\n").strip()
+        print("'%s' is not connected" % NC_NODE_ID)
+        print("\n").strip()
+        exit(1)
+
     result = ctrl.schemas_list(NC_NODE_ID)
     if(result.status == http.OK):
         data = result.data
@@ -42,6 +71,5 @@ if __name__ == "__main__":
     else:
         print("\n").strip()
         print("!!!Error, reason: %s" % result.brief)
-#        print("!!!Error, reason: %s" % result.details)
         print("\n").strip()
         exit(1)
