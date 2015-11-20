@@ -6,16 +6,16 @@ from collections import namedtuple
 
 def get_device_list():
     device_list = []
-    device = namedtuple('device', ['name', 'ip_address',
+    Device = namedtuple('Device', ['name', 'ip_address',
                                    'username', 'password'])
 
-    device1 = device(name = 'device1', 
+    device1 = Device(name = 'device1', 
                            ip_address = '192.168.1.1', 
                            username = 'user1', 
                            password = 'password1')
     device_list.append(device1)
     
-    device2 = device(name = 'device2', 
+    device2 = Device(name = 'device2', 
                            ip_address = '192.168.2.1', 
                            username = 'user2', 
                            password = 'password2')

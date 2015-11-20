@@ -15,12 +15,12 @@ def get_device_list():
     device_list = []
     device_list_filename = 'device-tuple-info.txt'
     device_list_file_object = open(device_list_filename, 'r')
-    device = namedtuple('device', ['name', 'ip_address',
+    Device = namedtuple('Device', ['name', 'ip_address',
                                    'username', 'password'])
 
     for line in device_list_file_object:
         record_info = line.split(',')
-        device_record = device(name = record_info[0], 
+        device_record = Device(name = record_info[0], 
                                ip_address = record_info[1], 
                                username = record_info[2], 
                                password = record_info[3])
