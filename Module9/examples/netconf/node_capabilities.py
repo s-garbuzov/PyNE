@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Sample script that retrieves NETCONF device information from the Controller
+Sample script that retrieves NETCONF device capabilities
+information from the Controller
 """
 
 # Python standard library modules
@@ -32,11 +33,20 @@ if __name__ == "__main__":
     if(result.status == http.OK):
         assert(isinstance(result.data, NETCONFNodeTopoInfo))
         device_info = result.data
-        print("    Node ID           : %s" % device_info.identifier)
-        print("    IP Address        : %s" % device_info.ip_addr)
-        print("    TCP Port Number   : %s" % device_info.port_num)
-        print("    Connection Status : %s" %
-              'connected' if device_info.connected else 'disconnected')
+        clist = device_info.capabilities_available
+        if(clist):
+            print("    Available Capabilities:")
+            print("\n").strip()
+            for item in clist:
+                print "      %s" % item
+            print "\n".strip()
+        clist = device_info.capabilities_unavailable
+        if(clist):
+            print("    Unavailable Capabilities:")
+            print "\n".strip()
+            for item in clist:
+                print "      %s" % item
+            print "\n".strip()
         print "\n".strip()
     elif(result.status == http.NOT_FOUND):
         print("\n").strip()
