@@ -100,10 +100,11 @@ class NETCONFNodeTopoInfo(object):
         if hasattr(self, 'unavailable_capabilities'):
             data = []
             clist = self.unavailable_capabilities.get('unavailable-capability')
-            for item in clist:
-                s = ("%s, failure-reason: %s" %
-                     (item.get('capability'), item.get('failure-reason')))
-                data.append(s)
+            if(clist):
+                for item in clist:
+                    s = ("%s, failure-reason: %s" %
+                         (item.get('capability'), item.get('failure-reason')))
+                    data.append(s)
             return data
         else:
             assert(False), "[NETCONFNodeTopoInfo] missing expected attribute"
