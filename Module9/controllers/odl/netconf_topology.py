@@ -2,6 +2,9 @@
 Helper classes for parsing NETCONF topology information.
 """
 
+# this package local modules
+from Module9.utils.debugging import dbg_trace_print
+
 
 class NETCONFTopoInfo(object):
     """Class that is used to parse NETCONF topology information
@@ -21,10 +24,10 @@ class NETCONFTopoInfo(object):
 
     @property
     def identifier(self):
-        if hasattr(self, 'topology_id'):
+        if hasattr(self, 'topology_id1'):
             return self.topology_id
         else:
-            assert(False), "[NETCONFTopoInfo] missing expected attribute"
+            dbg_trace_print("!!!Warning: missing expected attribute")
             return None
 
     @property
@@ -60,7 +63,7 @@ class NETCONFNodeTopoInfo(object):
         if hasattr(self, 'node_id'):
             return self.node_id
         else:
-            assert(False), "[NETCONFNodeTopoInfo] missing expected attribute"
+            dbg_trace_print("!!!Warning: missing expected attribute")
             return None
 
     @property
@@ -68,7 +71,7 @@ class NETCONFNodeTopoInfo(object):
         if hasattr(self, 'connection_status'):
             return (self.connection_status == 'connected')
         else:
-            assert(False), "[NETCONFNodeTopoInfo] missing expected attribute"
+            dbg_trace_print("!!!Warning: missing expected attribute")
             return None
 
     @property
@@ -76,7 +79,7 @@ class NETCONFNodeTopoInfo(object):
         if hasattr(self, 'host'):
             return self.host
         else:
-            assert(False), "[NETCONFNodeTopoInfo] missing expected attribute"
+            dbg_trace_print("!!!Warning: missing expected attribute")
             return None
 
     @property
@@ -84,7 +87,7 @@ class NETCONFNodeTopoInfo(object):
         if hasattr(self, 'port'):
             return self.port
         else:
-            assert(False), "[NETCONFNodeTopoInfo] missing expected attribute"
+            dbg_trace_print("!!!Warning: missing expected attribute")
             return None
 
     @property
@@ -92,7 +95,7 @@ class NETCONFNodeTopoInfo(object):
         if hasattr(self, 'available_capabilities'):
             return self.available_capabilities.get('available-capability')
         else:
-            assert(False), "[NETCONFNodeTopoInfo] missing expected attribute"
+            dbg_trace_print("!!!Warning: missing expected attribute")
             return None
 
     @property
@@ -107,5 +110,5 @@ class NETCONFNodeTopoInfo(object):
                     data.append(s)
             return data
         else:
-            assert(False), "[NETCONFNodeTopoInfo] missing expected attribute"
+            dbg_trace_print("!!!Warning: missing expected attribute")
             return None
