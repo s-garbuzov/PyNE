@@ -7,24 +7,27 @@ import httplib as http
 # this package local modules
 from Module9.controllers.odl.controller import ODLController
 from Module9.controllers.odl.netconf_topology import NETCONFTopoInfo
+from Module9.utils.utilities import yaml_cfg_load
 
 
 if __name__ == "__main__":
 
-    CTRL_IP_ADDR = "172.22.18.70"
-    CTRL_HTTP_PORT = 8181
-    CTRL_UNAME = "admin"
-    CTRL_PSWD = "admin"
-    ctrl = ODLController(CTRL_IP_ADDR, CTRL_HTTP_PORT, CTRL_UNAME, CTRL_PSWD)
+    NC_TOPO_ID = 'topology-netconf'
+    ctrl_cfg_path = "../config/ctrl.yml"
+    ctrl_cfg = yaml_cfg_load(ctrl_cfg_path)
+    if(ctrl_cfg is None):
+        print("!!!Error: failed to get Controller configuration)")
+        exit(1)
 
-    topo_id = 'topology-netconf'
+    ctrl = ODLController(ctrl_cfg['ip_addr'], ctrl_cfg['http_port'],
+                         ctrl_cfg['admin_name'], ctrl_cfg['admin_pswd'])
 
     print("\n").strip()
-    print("Controller: '%s:%s'" % (CTRL_IP_ADDR, CTRL_HTTP_PORT))
+    print("Controller: '%s:%s'" % (ctrl.ip_addr, ctrl.port))
     print("\n").strip()
     print("NETCONF Topology information")
 
-    result = ctrl.topology_info(topo_id)
+    result = ctrl.topology_info(NC_TOPO_ID)
     if(result.status == http.OK):
         assert(isinstance(result.data, NETCONFTopoInfo))
         topo_info = result.data

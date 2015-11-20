@@ -10,25 +10,29 @@ import httplib as http
 
 # this package local modules
 from Module9.controllers.odl.controller import ODLController
+from Module9.utils.utilities import yaml_cfg_load
 
 
 if __name__ == "__main__":
 
-    CTRL_IP_ADDR = "172.22.18.70"
-    CTRL_HTTP_PORT = 8181
-    CTRL_UNAME = "admin"
-    CTRL_PSWD = "admin"
-    ctrl = ODLController(CTRL_IP_ADDR, CTRL_HTTP_PORT, CTRL_UNAME, CTRL_PSWD)
+    NC_NODE_ID = "controller-config"
+    SCHEMA_ID = "network-topology"
+    SCHEMA_VERSION = "2013-10-21"
+    ctrl_cfg_path = "../config/ctrl.yml"
+    ctrl_cfg = yaml_cfg_load(ctrl_cfg_path)
+    if(ctrl_cfg is None):
+        print("!!!Error: failed to get Controller configuration)")
+        exit(1)
 
-    node_id = 'controller-config'
-    schema_id = "network-topology"
-    schema_version = "2013-10-21"
-    result = ctrl.schema_info(node_id, schema_id, schema_version)
+    ctrl = ODLController(ctrl_cfg['ip_addr'], ctrl_cfg['http_port'],
+                         ctrl_cfg['admin_name'], ctrl_cfg['admin_pswd'])
+
+    result = ctrl.schema_info(NC_NODE_ID, SCHEMA_ID, SCHEMA_VERSION)
     print("\n").strip()
     if(result.status == http.OK):
         print("Controller : '%s:%s'" % (ctrl.ip_addr, ctrl.port))
-        print("Node ID    : '%s'" % node_id)
-        print("YANG model : '%s@%s'" % (schema_id, schema_version))
+        print("Node ID    : '%s'" % NC_NODE_ID)
+        print("YANG model : '%s@%s'" % (SCHEMA_ID, SCHEMA_VERSION))
         print "\n".strip()
         print result.data
     else:

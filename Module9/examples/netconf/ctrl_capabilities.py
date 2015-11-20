@@ -4,22 +4,26 @@
 Sample script that retrieves NETCONF capabilities of the Controller
 """
 
+# Python standard library modules
 import httplib as http
 
 # this package local modules
 from Module9.controllers.odl.controller import ODLController
 from Module9.controllers.odl.netconf_topology import NETCONFNodeTopoInfo
+from Module9.utils.utilities import yaml_cfg_load
 
 
 if __name__ == "__main__":
 
-    CTRL_IP_ADDR = "172.22.18.70"
-    CTRL_HTTP_PORT = 8181
-    CTRL_UNAME = "admin"
-    CTRL_PSWD = "admin"
-    ctrl = ODLController(CTRL_IP_ADDR, CTRL_HTTP_PORT, CTRL_UNAME, CTRL_PSWD)
-
     NC_NODE_ID = "controller-config"
+    ctrl_cfg_path = "../config/ctrl.yml"
+    ctrl_cfg = yaml_cfg_load(ctrl_cfg_path)
+    if(ctrl_cfg is None):
+        print("!!!Error: failed to get Controller configuration)")
+        exit(1)
+
+    ctrl = ODLController(ctrl_cfg['ip_addr'], ctrl_cfg['http_port'],
+                         ctrl_cfg['admin_name'], ctrl_cfg['admin_pswd'])
 
     print("\n").strip()
     print("Controller: '%s:%s'" % (ctrl.ip_addr, ctrl.port))

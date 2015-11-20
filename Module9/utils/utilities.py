@@ -2,21 +2,12 @@
 Helper utility functions
 """
 
+# Python standard library modules
 import os
-import yaml
 import inspect
 
-
-def yaml_cfg_load(f):
-    """Loads file containing YAML encoded configuration data
-    and converts it to corresponding Python object."""
-    try:
-        with open(f, 'r') as f:
-            cfg = yaml.load(f)
-        return cfg
-    except IOError:
-        print("Error: failed to read file '%s'" % f)
-        return None
+# third-party library modules
+import yaml
 
 
 def dbg_trace_print(msg=None):
@@ -37,3 +28,15 @@ def dbg_trace_print(msg=None):
         if s:
             print s
         del frame
+
+
+def yaml_cfg_load(f):
+    """Loads file containing YAML encoded configuration data
+    and converts it to the corresponding Python object."""
+    try:
+        with open(f, 'r') as f:
+            cfg = yaml.load(f)
+        return cfg
+    except IOError:
+        print("Error: failed to read file '%s'" % f)
+        return None
