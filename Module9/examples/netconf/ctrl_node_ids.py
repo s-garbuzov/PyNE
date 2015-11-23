@@ -15,15 +15,18 @@ from Module9.utils.utilities import yaml_cfg_load
 
 if __name__ == "__main__":
 
+    # Read Controller info from the local configuration file
     ctrl_cfg_path = "../config/ctrl.yml"
     ctrl_cfg = yaml_cfg_load(ctrl_cfg_path)
     if(ctrl_cfg is None):
-        print("!!!Error: failed to get Controller configuration)")
+        print("!!!Error, reason: failed to get Controller configuration")
         exit(1)
 
+    # Allocate object instance that represents the Controller
     ctrl = ODLController(ctrl_cfg['ip_addr'], ctrl_cfg['http_port'],
                          ctrl_cfg['admin_name'], ctrl_cfg['admin_pswd'])
 
+    # Communicate to the Controller and display the result of communication
     result = ctrl.netconf_nodes_ids()
     print("\n").strip()
     if(result.status == http.OK):
@@ -36,5 +39,4 @@ if __name__ == "__main__":
             print "  '%s'" % item
     else:
         print("!!!Error, reason: %s" % result.brief)
-#        print("!!!Error, reason: %s" % result.details)
     print("\n").strip()

@@ -12,13 +12,17 @@ from Module9.utils.utilities import yaml_cfg_load
 
 if __name__ == "__main__":
 
-    NC_TOPO_ID = 'topology-netconf'
+    # Read Controller info from the local configuration file
     ctrl_cfg_path = "../config/ctrl.yml"
     ctrl_cfg = yaml_cfg_load(ctrl_cfg_path)
     if(ctrl_cfg is None):
-        print("!!!Error: failed to get Controller configuration)")
+        print("!!!Error, reason: failed to get Controller configuration")
         exit(1)
 
+    # Following is a hard-coded value used by the Controller
+    # for identification of the NETCONF topology
+    NC_TOPO_ID = 'topology-netconf'
+    # Allocate object instance that represents the Controller
     ctrl = ODLController(ctrl_cfg['ip_addr'], ctrl_cfg['http_port'],
                          ctrl_cfg['admin_name'], ctrl_cfg['admin_pswd'])
 
@@ -27,6 +31,7 @@ if __name__ == "__main__":
     print("\n").strip()
     print("NETCONF Topology information")
 
+    # Communicate to the Controller and display the result of communication
     result = ctrl.topology_info(NC_TOPO_ID)
     if(result.status == http.OK):
         assert(isinstance(result.data, NETCONFTopoInfo))
@@ -57,5 +62,4 @@ if __name__ == "__main__":
         print("\n").strip()
         print("!!!Error, reason: %s" % result.brief)
         print("\n").strip()
-#        print("!!!Error, reason: %s" % result.details)
         exit(1)

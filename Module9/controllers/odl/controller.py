@@ -225,7 +225,6 @@ class ODLController(object):
                    (self._ip_addr, self._http_port))
             result.details = msg
         elif(response.status_code == http.OK):
-            print response.headers.get('content-type')
             try:
                 if(response.headers.get('content-type') != 'application/xml'):
                     raise ValueError("unexpected response content encoding")
