@@ -52,23 +52,23 @@ def ipv4_address_8bit_check(ipv4_candidates):
 #    6to4 anycast
 #    carrier-grade NAT
 #    etc.
-def ipv4_address_detailed_check(ipv4_candidates):
+def ipv4_unicast_address_check(ipv4_candidates):
     ipv4_pattern = re.compile(r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$')  
     print '\nResults of IPv4 unicast check:'
     for candidate in ipv4_candidates:
-        ipv4_valid = 'yes'
+        ipv4_unicast = 'yes'
         if ipv4_pattern.match(candidate):
             ipv4_octets = ipv4_pattern.match(candidate)
             ipv4_octets = ipv4_octets.groups()
             first_octet = int(ipv4_octets[0])
             if ((first_octet < 1) or (first_octet >= 224) or (first_octet =='127')):
-                ipv4_valid = 'no'
+                ipv4_unicast = 'no'
             for octet in range(1, 3):
                 if ((int(ipv4_octets[octet]) < 0) or (int(ipv4_octets[octet]) > 255)):
-                    ipv4_valid = 'no'
+                    ipv4_unicast = 'no'
         else:
-            ipv4_valid = 'no'
-        if (ipv4_valid == 'yes'):
+            ipv4_unicast = 'no'
+        if (ipv4_unicast == 'yes'):
             print candidate + ': is a unicast IPv4 address.'
         else:
             print candidate + ': is not a valid unicast IPv4 address.'
@@ -80,7 +80,7 @@ def main():
 
     basic_ipv4_address_format(ipv4_candidates)
     ipv4_address_8bit_check(ipv4_candidates)
-    ipv4_address_detailed_check(ipv4_candidates)
+    ipv4_unicast_address_check(ipv4_candidates)
 
 
 if __name__ == '__main__':
