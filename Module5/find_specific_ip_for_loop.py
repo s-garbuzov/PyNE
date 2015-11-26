@@ -50,8 +50,6 @@ def establish_telnet_session(device_ip, device_username, device_password,
         telnet_session.expect(device_prompt)
         telnet_session.sendline('terminal length 0')
         telnet_session.expect(device_prompt)
-        telnet_session.sendline('show ip int br')
-        telnet_session.expect(device_prompt)
         return telnet_session
     elif result==1:
         print 'Telnet exited unexpectedly when connecting to ' + device_ip
@@ -70,6 +68,8 @@ def verify_ip_address(ip_candidate):
 def get_ip_interfaces(telnet_session, device_prompt):
     interface_ip_dict = {}
     telnet_session.sendline('show ip interface brief')
+    telnet_session.expect(device_prompt)
+    telnet_session.sendline('\n')
     telnet_session.expect(device_prompt)
     show_ip_output = telnet_session.before
     show_ip_output_lines = show_ip_output.splitlines()
@@ -111,19 +111,19 @@ def main():
                     device_username, device_password, device_prompt,
                     telnet_timeout)
 
-            if (telnet_session != None):
-                interface_ip_dict = get_ip_interfaces(telnet_session,
-                        device_prompt)
-                close_telnet_session(telnet_session)
-                (ip_found, interface) = \
-                        check_interface_ip_addresses(interface_ip_dict,
-                        target_ip)
+            # you can avoid the reason for the try statement by testing
+            # if (telnet_session != None):
+            interface_ip_dict = get_ip_interfaces(telnet_session,
+                    device_prompt)
+            close_telnet_session(telnet_session)
+            (ip_found, interface) = \
+                    check_interface_ip_addresses(interface_ip_dict, target_ip)
 
-                if ip_found == True:
-                    print 'IP address ' + target_ip + ' found.'
-                    print device_record.name + ' (' + device_ip + '): ' + \
-                            interface + ', ' + interface_ip_dict[interface]
-                    break
+            if ip_found == True:
+                print 'IP address ' + target_ip + ' found on this interface.'
+                print device_record.name + ' (' + device_ip + '): ' + \
+                        interface + ', ' + interface_ip_dict[interface]
+                break
         except:
             continue
 
