@@ -1,1 +1,17 @@
 Module 10. Python with Databases
+
+
+NOTE: Eclipse PyDev plugin has issues with resolving 'sqlite3' imports,
+      complaining with "Undefined variable from import: ..." type of errors
+      against multiple 'sqlite3' module members.
+      Following is a fix that can be applied to the PyDev settings:
+        Goto: Window->Preferences->PyDev->Interpreters->Python Interpreter
+        Goto: Forced Builtins tab
+        Click on New...
+        Type '_sqlite3' (without quotes)
+        Click OK
+
+        Eclipse IDE might need to be restarted.
+
+        The error messages will disappear, and the module members will also
+        be recognized.
