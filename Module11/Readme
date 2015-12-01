@@ -1,1 +1,34 @@
-Module 11. Python with web services
+Module 11. Testing
+
+Testing overview
+
+In general programming terms, "testing" is the practice of writing code
+(separate from actual application code) that invokes the code it tests to
+help determine if there are any errors. It does not prove that code is correct,
+it merely reports if the conditions the tester thought of are handled correctly.
+
+Unit testing, specifically tests a single "unit" of code in isolation.
+Unit tests test only a single unit at a time.
+A unit could be an entire module, a single class or function.
+A unit test consists of one or more assertions, statements that assert that
+some property of the code being tested is true.
+Each test should test a single, specific property of the code and be named
+accordingly.
+To be found by the unittest test discovery mechanism (present in Python 2.7+
+and 3.2+), test methods should be prepended by test_.
+
+
+o Testing makes sure your code works properly under a given set of conditions.
+o Testing allows one to ensure that changes to the code did not break existing
+  functionality.
+o Testing forces one to think about the code under unusual conditions,
+  possibly revealing logical errors.
+o Good testing requires modular, decoupled code, which is a hallmark of good
+  system design.
+
+
+
+
+
+Testing tools
+

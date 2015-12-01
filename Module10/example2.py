@@ -22,7 +22,7 @@ class Device(object):
     """Class representing a network device."""
 
     def __init__(self, name=None, os_type=None, ip_addr=None, iflist=None):
-        """The constructor of the class instance."""
+        """The constructor of an instance of this class."""
         self.name = name
         self.os_type = os_type
         self.ip_addr = ip_addr
@@ -34,7 +34,9 @@ class Device(object):
 
 
 def print_device_info(device):
-    """Prints information about given object instance of the Device class."""
+    """Prints out information about given device, represented by an instance
+    object of the Device class.
+    """
     assert(isinstance(device, Device))
     print(" Device Name : %s" % device.name)
     print(" OS Type     : %s" % device.os_type)

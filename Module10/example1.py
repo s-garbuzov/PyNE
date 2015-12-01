@@ -16,8 +16,10 @@ import sqlite3 as db
 
 
 def print_device_info(device_info):
-    """Prints information about given object instance of the Device class."""
+    """Prints out information about given device, represented by 4-tuple.
+    """
     assert(isinstance(device_info, tuple))
+    assert(len(device_info) == 4)
     print(" Device Name : %s" % device_info[0])
     print(" OS Type     : %s" % device_info[1])
     print(" IP Address  : %s" % device_info[2])
