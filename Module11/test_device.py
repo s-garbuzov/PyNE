@@ -62,6 +62,7 @@ class DeviceTests(unittest.TestCase):
     # The test method (executes a specific test case)
     def test_device_get_interfaces(self):
         self.assertIsInstance(self.device.interfaces, list)
+        self.assertEqual(self.device.if_count, 0)
 
     # The test method (executes a specific test case)
     def test_device_set_interfaces(self):

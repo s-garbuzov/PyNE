@@ -37,13 +37,3 @@ class Device(object):
     @property
     def if_count(self):
         return len(self._iflist)
-    
-    
-    
-    
-    
-    '''
-    def toJSON(self):
-        """Converts instance object to JSON."""
-        return json.dumps(self, default=lambda o: o.__dict__)
-    '''
