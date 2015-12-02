@@ -73,7 +73,7 @@ def establish_telnet_session(device_username, device_password, device_ip, \
 
 
 def get_version_info(telnet_session, device_prompt):
-    version_pattern = re.compile('Version(.*?)\[')
+    version_pattern = re.compile('Version(.*)\[')
 
     telnet_session.sendline('show version')
     telnet_session.expect(device_prompt)
