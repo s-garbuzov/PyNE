@@ -67,7 +67,7 @@ def establish_telnet_session(device_ip, device_username, device_password,
 
 # get_version_info function assumes IOS in lab environment
 def get_version_info(telnet_session, device_prompt):
-    version_pattern = re.compile('Version(.*?)\[', re.MULTILINE)
+    version_pattern = re.compile('Version(.*)\[', re.MULTILINE)
     telnet_session.sendline('show version')
     telnet_session.expect(device_prompt)
     show_version_output = telnet_session.before

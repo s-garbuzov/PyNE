@@ -59,7 +59,7 @@ def establish_telnet_session(device_ip, device_username, device_password,
 
 
 def compare_version_info(telnet_session, device_prompt):
-    version_pattern = re.compile('Version(.*?)\[', re.MULTILINE)
+    version_pattern = re.compile('Version(.*)\[', re.MULTILINE)
     version_expected = '15.2(20150630:022638)'
 
     telnet_session.sendline('show version')
