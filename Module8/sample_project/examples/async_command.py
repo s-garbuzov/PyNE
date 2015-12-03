@@ -6,7 +6,7 @@ Example of a script that asynchronously executes a CLI command
 on multiple remote devices.
 CLI commands are device specific, so this package needs to be adapted
 to concrete devices.
-Current script assumes interaction with Cisco IOS devices.
+Current script assumes interaction with Cisco IOS-XR devices.
 
 NOTES: This package requires installation of the 'paramiko' Python package
           pip install paramiko
@@ -114,7 +114,8 @@ def dispatch_command(cfg_file, cmd_string, read_delay=1):
 
 if __name__ == '__main__':
     cfg_file = "../device_list.yml"
-    cmd_string = "show interfaces | include line protocol\n"
+#    cmd_string = "show interfaces | include line protocol\n"
+    cmd_string = "show ipv4 interface brief\n"
     print("\nCommand to be executed: %s" % cmd_string)
     results = dispatch_command(cfg_file, cmd_string, read_delay=1)
     print("\nCommand execution results:\n")

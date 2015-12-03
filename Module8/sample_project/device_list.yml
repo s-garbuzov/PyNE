@@ -23,7 +23,7 @@
 #
 #    Configuration example for a device entry:
 #
-#    device_type: "cisco_ios"
+#    device_type: "cisco_iosxr"
 #    channel: "ssh"
 #    ip_addr: "192.0.2.168"
 #    port: 22
@@ -41,12 +41,12 @@
 ##############################################################################
 
 # Device 1
-- device_type: "cisco_ios"
+- device_type: "cisco_iosxr"
   channel: "ssh"
-  ip_addr: "10.30.30.1"
+  ip_addr: "10.0.0.1"
   port: 22
   timeout: 3
-  username: "admin"
+  username: "cisco"
   password: "cisco"
   login_prompt: "sername:"
   password_prompt: "assword:"
@@ -57,12 +57,12 @@
   verbose: True
 
 # Device 2
-- device_type: "cisco_ios"
+- device_type: "cisco_iosxr"
   channel: "telnet"
-  ip_addr: "10.30.30.2"
+  ip_addr: "10.0.0.2"
   port: 23
   timeout: 3
-  username: "admin"
+  username: "cisco"
   password: "cisco"
   login_prompt: "sername:"
   password_prompt: "assword:"
@@ -73,12 +73,12 @@
   verbose: True
 
 # Device 3
-- device_type: "cisco_ios"
+- device_type: "cisco_iosxr"
   channel: "ssh"
-  ip_addr: "10.30.30.3"
+  ip_addr: "10.0.0.3"
   port: 22
   timeout: 3
-  username: "admin"
+  username: "cisco"
   password: "cisco"
   login_prompt: "sername:"
   password_prompt: "assword:"
@@ -86,20 +86,4 @@
   admin_prompt: "#"
   secret: "cisco"
   max_bytes: 9000
-  verbose: True
-
-# Device 4
-- device_type: "cisco_xr"
-  channel: "ssh"
-  ip_addr: '10.254.8.17'
-  port: 22
-  timeout: 7
-  username: "testuser"
-  password: "testpassword"
-  login_prompt: "sername:"
-  password_prompt: "assword:"
-  oper_prompt: ">"
-  admin_prompt: "#"
-  secret: "testsecret"
-  max_bytes: 10000
   verbose: True

@@ -1,5 +1,5 @@
 """
-CiscoIOS class
+CiscoIOSXR class
 """
 
 # this package local modules
@@ -7,8 +7,8 @@ from Module8.sample_project.channels.ssh_channel import SSHChannel
 from Module8.sample_project.channels.telnet_channel import TELNETChannel
 
 
-class CiscoIOS(object):
-    """Cisco IOS device with device specific methods."""
+class CiscoIOSXR(object):
+    """Cisco IOS-XR device with device specific methods."""
 
     def __init__(self, **kwargs):
         """Allocate and return a new instance object."""
@@ -16,7 +16,7 @@ class CiscoIOS(object):
         # Initialize this class attributes
         self._channel = None
         self.vendor = "Cisco"
-        self.os_type = "IOS"
+        self.os_type = "IOS-XR"
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -34,7 +34,6 @@ class CiscoIOS(object):
 
     def get_os_type(self):
         return self.os_type
-        return "IOS"
 
     def get_ipaddr(self):
         return self.ip_addr

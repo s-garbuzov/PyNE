@@ -1,11 +1,13 @@
+"""
+Class DeviceFactory
+"""
 
-from cisco_ios import CiscoIOS
-from cisco_xr import CiscoXR
-from brocade_vrouter import BrocadeVRouter
+
+from Module8.sample_project.devices.cisco_iosxr import CiscoIOSXR
+from Module8.sample_project.devices.brocade_vrouter import BrocadeVRouter
 
 CLASS_MAP = {
-    'cisco_ios': CiscoIOS,
-    'cisco_xr': CiscoXR,
+    'cisco_iosxr': CiscoIOSXR,
     'brocade_vrouter': BrocadeVRouter
 }
 
