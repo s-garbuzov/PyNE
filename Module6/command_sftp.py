@@ -149,10 +149,10 @@ def get_file(device_info, remote_path, local_path):
 def main():
     # Remote device SFTP session specific info
     device_info = {
-        'ip_addr': '10.30.30.3',
+        'ip_addr': '10.0.0.1',
         'port': 22,
         'timeout': 3,
-        'username': 'admin',
+        'username': 'cisco',
         'password': 'cisco',
         'secret': 'cisco',
         'verbose': True

@@ -7,7 +7,7 @@ device via TELNET connection.
 
 Administrator login options and CLI commands are device specific,
 thus this script needs to be adapted to a concrete device specifics.
-Current script assumes interaction with Cisco IOS device.
+Current script assumes interaction with Cisco IOS-XR device.
 
 command_telnet.py
 
@@ -240,10 +240,10 @@ def execute_command(device_info, cmd_string, read_delay=1):
 def main():
     # Remote device TELNET session specific info
     device_info = {
-        'ip_addr': '10.30.30.3',
+        'ip_addr': '10.0.0.1',
         'port': 23,
         'timeout': 3,
-        'username': 'admin',
+        'username': 'cisco',
         'password': 'cisco',
         'login_prompt': 'sername:',
         'password_prompt': 'assword:',
@@ -253,7 +253,7 @@ def main():
         'verbose': True
     }
 
-    cmd_string = "show interfaces\n"
+    cmd_string = "show ipv4 interface brief\n"
     print("\nCommand to be executed: %s" % cmd_string)
     output = execute_command(device_info, cmd_string, read_delay=1)
     if(output is not None):

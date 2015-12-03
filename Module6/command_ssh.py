@@ -7,7 +7,7 @@ device over established SSH connection.
 
 Administrator login options and CLI commands are device specific,
 thus this script needs to be adapted to a concrete device specifics.
-Current script assumes interaction with Cisco IOS device.
+Current script assumes interaction with Cisco IOS-XR device.
 
 NOTES: Requires installation of the 'paramiko' Python package
           pip install paramiko
@@ -210,10 +210,10 @@ def execute_command(device_info, cmd_string, read_delay=1):
 def main():
     # Remote device SSH session specific info
     device_info = {
-        'ip_addr': '10.30.30.3',
+        'ip_addr': '10.0.0.1',
         'port': 22,
         'timeout': 3,
-        'username': 'admin',
+        'username': 'cisco',
         'password': 'cisco',
         'login_prompt': 'sername:',
         'password_prompt': 'assword:',
@@ -225,7 +225,7 @@ def main():
     }
 
 #    cmd_string = "show interfaces\n"
-    cmd_string = "show interfaces | include line protocol\n"
+    cmd_string = "show ipv4 interface brief\n"
     print("\nCommand to be executed: %s" % cmd_string)
     output = execute_command(device_info, cmd_string, read_delay=1)
     if(output is not None):

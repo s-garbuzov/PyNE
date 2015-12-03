@@ -1,5 +1,5 @@
 """
-CiscoIOS class (subclass of the NetworkDevice base class)
+CiscoIOSXR class (subclass of the NetworkDevice base class)
 """
 
 # this project local modules
@@ -9,15 +9,15 @@ from Module7.ssh_channel import SSHChannel
 
 
 # Subclass of the 'NetworkDevice' base class
-class CiscoIOS(NetworkDevice):
-    """Cisco IOS device with device specific methods."""
+class CiscoIOSXR(NetworkDevice):
+    """Cisco IOS-XR device with device specific methods."""
 
     def __init__(self, **kwargs):
         """Allocate and return a new instance object."""
 
         # Invoke the superclass initialization method to initialize
         # inherited attributes
-        NetworkDevice.__init__(self, 'Cisco', 'IOS')
+        NetworkDevice.__init__(self, 'Cisco', 'IOS-XR')
         # Initialize this class attributes
         self._channel = None
         for k, v in kwargs.items():
