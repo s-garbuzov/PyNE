@@ -1,29 +1,26 @@
-##############################################################################
+###############################################################################
 #
 #   List of NETCONF devices to communicate with
 #
 ##############################################################################
 
 # NETCONF device 1
-- name: "vRouter"
-  ip_addr: 172.22.17.110
+- name: "Router1"
+  ip_addr: 10.30.30.1
   port: 830
-  admin_name: "vyatta"
-  admin_pswd: "vyatta"
-
-# NETCONF device 2
-- name: "NC_DEV-2"
-#- name: "vRouter"
-  ip_addr: 10.30.30.2
-  port: 830
-  admin_name: "admin"
+  admin_name: "cisco"
   admin_pswd: "cisco"
 
+# NETCONF device 2
+#- name: "Router2"
+#  ip_addr: 10.0.0.2
+#  port: 830
+#  admin_name: "cisco"
+#  admin_pswd: "cisco"
+
 # NETCONF device 3
-- name: "NC_DEV-3"
-#- name: "vRouter"
-#  ip_addr: 10.30.30.3
-  ip_addr: 172.22.17.110
-  port: 830
-  admin_name: "vyatta"
-  admin_pswd: "vyatta"
+#- name: "Router3"
+#  ip_addr: 10.0.0.3
+#  port: 830
+#  admin_name: "cisco"
+#  admin_pswd: "cisco"
